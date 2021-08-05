@@ -3,7 +3,7 @@ resource "aws_vpc" "consul" {
   cidr_block                       = var.vpc_cidr
   instance_tenancy                 = var.vpc_instance_tenancy
   enable_dns_support               = true
-  enable_dns_hostnames             = true # required for VPC peering.
+  enable_dns_hostnames             = true
   assign_generated_ipv6_cidr_block = true
 
   tags = merge(
@@ -45,7 +45,7 @@ resource "aws_eip" "nat" {
 
 ## The NAT Gateway
 resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat[0].id
+  allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public.0.id
 
   tags = merge(
@@ -91,7 +91,7 @@ resource "aws_route_table" "private" {
 resource "aws_route" "private_internet_access" {
   route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat[0].id
+  nat_gateway_id         = aws_nat_gateway.nat.id
 }
 
 resource "aws_route" "private_internet_access_ipv6" {
