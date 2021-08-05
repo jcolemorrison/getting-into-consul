@@ -5,6 +5,12 @@ variable "main_project_tag" {
   default     = "consul-hardway"
 }
 
+variable "aws_default_region" {
+	description = "The default region that all resources will be deployed into."
+	type = string
+	default = "us-east-1"
+}
+
 # VPC Variables
 variable "vpc_cidr" {
   description = "Cidr block for the VPC.  Using a /16 or /20 Subnet Mask is recommended."
@@ -34,4 +40,29 @@ variable "vpc_private_subnet_count" {
   description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
   type        = number
   default     = 2
+}
+
+# EC2 Variables
+
+variable "ami_id" {
+	description = "AMI ID to be used on all AWS EC2 Instances."
+	type = string
+	default = "ami-0747bdcabd34c712a" # Latest Ubuntu 18.04 LTS (HVM), SSD Volume Type
+}
+
+variable "ec2_key_pair_name" {
+	description = "An existing EC2 key pair used to access the bastion server."
+	type = string
+}
+
+variable "allowed_bastion_cidr_blocks" {
+  description = "List of CIDR blocks allowed to access your Bastion.  Defaults to Everywhere."
+  type = list(string)
+  default = ["0.0.0.0/0"]
+}
+
+variable "allowed_bastion_cidr_blocks_ipv6" {
+  description = "List of CIDR blocks allowed to access your Bastion.  Defaults to none."
+  type = list(string)
+  default = []
 }
