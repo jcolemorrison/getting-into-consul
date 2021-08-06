@@ -13,14 +13,14 @@ variable "aws_default_region" {
 
 variable "allowed_traffic_cidr_blocks" {
   description = "List of CIDR blocks allowed to send requests to your consul server endpoint.  Defaults to EVERYWHERE."
-  type = list(string)
-  default = ["0.0.0.0/0"]
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
 variable "allowed_traffic_cidr_blocks_ipv6" {
   description = "List of IPv6 CIDR blocks allowed to send requests to your consul server endpoint.  Defaults to EVERYWHERE."
-  type = list(string)
-  default = ["::/0"]
+  type        = list(string)
+  default     = ["::/0"]
 }
 
 # VPC Variables

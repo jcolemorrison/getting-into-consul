@@ -35,7 +35,7 @@ resource "aws_security_group_rule" "bastion_allow_outbound" {
 resource "aws_security_group" "load_balancer" {
   name_prefix = "${var.main_project_tag}-alb-sg"
   description = "Firewall for the application load balancer fronting the consul server."
-  vpc_id = aws_vpc.consul.id
+  vpc_id      = aws_vpc.consul.id
   tags = merge(
     { "Name" = "${var.main_project_tag}-alb-sg" },
     { "Project" = var.main_project_tag }
@@ -44,33 +44,75 @@ resource "aws_security_group" "load_balancer" {
 
 resource "aws_security_group_rule" "load_balancer_allow_80" {
   security_group_id = aws_security_group.load_balancer.id
-  type = "ingress"
-  protocol = "tcp"
-  from_port = 80
-  to_port = 80
-  cidr_blocks = var.allowed_traffic_cidr_blocks
-  ipv6_cidr_blocks = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
-  description = "Allow HTTP traffic."
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_blocks       = var.allowed_traffic_cidr_blocks
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
+  description       = "Allow HTTP traffic."
 }
 
 resource "aws_security_group_rule" "load_balancer_allow_443" {
   security_group_id = aws_security_group.load_balancer.id
-  type = "ingress"
-  protocol = "tcp"
-  from_port = 443
-  to_port = 443
-  cidr_blocks = var.allowed_traffic_cidr_blocks
-  ipv6_cidr_blocks = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
-  description = "Allow HTTPS traffic."
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = var.allowed_traffic_cidr_blocks
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
+  description       = "Allow HTTPS traffic."
 }
 
 resource "aws_security_group_rule" "load_balancer_allow_outbound" {
   security_group_id = aws_security_group.load_balancer.id
-  type = "egress"
-  protocol    = "-1"
-  from_port   = 0
-  to_port     = 0
-  cidr_blocks = ["0.0.0.0/0"]
-  ipv6_cidr_blocks = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
-  description = "Allow any outbound traffic."
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
+  description       = "Allow any outbound traffic."
+}
+
+## Consul Server Instance SG
+
+resource "aws_security_group" "consul_server" {
+  name_prefix = "${var.main_project_tag}-consul-server-sg"
+  description = "Firewall for the consul server."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-consul-server-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "consul_server_allow_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.load_balancer.id
+  description              = "Allow traffic from Load Balancer."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_22_bastion" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description              = "Allow SSH traffic from vault bastion."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_outbound" {
+  security_group_id = aws_security_group.consul_server.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
 }
