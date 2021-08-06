@@ -23,6 +23,10 @@ resource "aws_instance" "consul_server" {
     { "Name" = "${var.main_project_tag}-server" },
     { "Project" = var.main_project_tag }
   )
+
+	user_data = base64encode(templatefile("${path.module}/scripts/server.sh", {
+    # for injecting variables
+  }))
 }
 
 resource "aws_instance" "consul_client" {
@@ -36,4 +40,8 @@ resource "aws_instance" "consul_client" {
     { "Name" = "${var.main_project_tag}-client" },
     { "Project" = var.main_project_tag }
   )
+
+	user_data = base64encode(templatefile("${path.module}/scripts/client.sh", {
+    # for injecting variables
+  }))
 }
