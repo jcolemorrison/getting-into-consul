@@ -1,6 +1,6 @@
 resource "aws_instance" "bastion" {
   ami                         = var.ami_id
-  instance_type               = "t2.micro"
+  instance_type               = "t3.micro"
   key_name                    = var.ec2_key_pair_name
   vpc_security_group_ids      = [aws_security_group.bastion.id]
   subnet_id                   = aws_subnet.public[0].id
@@ -8,6 +8,19 @@ resource "aws_instance" "bastion" {
 
   tags = merge(
     { "Name" = "${var.main_project_tag}-bastion" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_instance" "consul_server" {
+  ami                         = var.ami_id
+  instance_type               = "t3.small"
+  key_name                    = var.ec2_key_pair_name
+  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  subnet_id                   = aws_subnet.private[0].id
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-server" },
     { "Project" = var.main_project_tag }
   )
 }

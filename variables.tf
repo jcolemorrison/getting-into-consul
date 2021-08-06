@@ -11,6 +11,18 @@ variable "aws_default_region" {
   default     = "us-east-1"
 }
 
+variable "allowed_traffic_cidr_blocks" {
+  description = "List of CIDR blocks allowed to send requests to your consul server endpoint.  Defaults to EVERYWHERE."
+  type = list(string)
+  default = ["0.0.0.0/0"]
+}
+
+variable "allowed_traffic_cidr_blocks_ipv6" {
+  description = "List of IPv6 CIDR blocks allowed to send requests to your consul server endpoint.  Defaults to EVERYWHERE."
+  type = list(string)
+  default = ["::/0"]
+}
+
 # VPC Variables
 variable "vpc_cidr" {
   description = "Cidr block for the VPC.  Using a /16 or /20 Subnet Mask is recommended."
