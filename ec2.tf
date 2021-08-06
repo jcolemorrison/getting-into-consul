@@ -24,3 +24,16 @@ resource "aws_instance" "consul_server" {
     { "Project" = var.main_project_tag }
   )
 }
+
+resource "aws_instance" "consul_client" {
+  ami                    = var.ami_id
+  instance_type          = "t3.small"
+  key_name               = var.ec2_key_pair_name
+  vpc_security_group_ids = [aws_security_group.consul_client.id]
+  subnet_id              = aws_subnet.private[1].id
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-client" },
+    { "Project" = var.main_project_tag }
+  )
+}

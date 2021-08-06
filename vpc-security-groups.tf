@@ -104,11 +104,53 @@ resource "aws_security_group_rule" "consul_server_allow_22_bastion" {
   from_port                = 22
   to_port                  = 22
   source_security_group_id = aws_security_group.bastion.id
-  description              = "Allow SSH traffic from vault bastion."
+  description              = "Allow SSH traffic from consul bastion."
 }
 
 resource "aws_security_group_rule" "consul_server_allow_outbound" {
   security_group_id = aws_security_group.consul_server.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
+}
+
+## Consul Client Instance SG
+
+resource "aws_security_group" "consul_client" {
+  name_prefix = "${var.main_project_tag}-consul-client-sg"
+  description = "Firewall for the consul client."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-consul-client-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "consul_client_allow_8500" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.load_balancer.id
+  description              = "Allow traffic from Load Balancer."
+}
+
+resource "aws_security_group_rule" "consul_client_allow_22_bastion" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description              = "Allow SSH traffic from consul bastion."
+}
+
+resource "aws_security_group_rule" "consul_client_allow_outbound" {
+  security_group_id = aws_security_group.consul_client.id
   type              = "egress"
   protocol          = "-1"
   from_port         = 0
