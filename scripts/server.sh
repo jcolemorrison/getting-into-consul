@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Hello Consul Server!
+echo "Hello Consul Server!"
