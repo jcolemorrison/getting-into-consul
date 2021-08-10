@@ -1,12 +1,12 @@
-## Getting into Consul
+# Getting into Consul
 
 This is the repo used in the [Getting into Consul](https://youtu.be/0H06VKvlTJQ) series where we walk through building out a consul based architecture and cluster from scratch.
 
-This repo is split into branches, each representing a part in the series.
+This repo is split into branches, each representing a part in the series:
 
-[Part 0 - Beginning of the Project]()
-[Part 1 - After Part 1 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-1)
-[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
+- [Part 0 - Beginning of the Project](https://github.com/jcolemorrison/getting-into-consul/tree/part-0)
+- [Part 1 - After Part 1 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-1)
+- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
 ## The Initial Architecture:
 
