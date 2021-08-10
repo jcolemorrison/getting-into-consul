@@ -1,5 +1,5 @@
-Beginning of the Consul the Hard Way Series!
+Beginning of the Getting into Consul Series!
 
 The initial architecture:
 
-![Consul the Hard Way Infrastructure](docs/consul-hard-way.png)
+![Getting into Consul Infrastructure](docs/consul-hard-way.png)

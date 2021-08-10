@@ -2,7 +2,7 @@
 variable "main_project_tag" {
   description = "Tag that will be attached to all resources."
   type        = string
-  default     = "consul-hardway"
+  default     = "getting-into-consul"
 }
 
 variable "aws_default_region" {
