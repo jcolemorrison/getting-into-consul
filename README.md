@@ -49,3 +49,7 @@ To set use this repo, take the following steps:
 	- Select **Load Balancers**.
 	- Select the load balancer created for our project, and grab its DNS.
 	- Navigate to the DNS.
+
+### Notes
+
+- [Cloud Auto-Join](https://www.consul.io/docs/install/cloud-auto-join) is set up for part 1, despite not being in the stream itself.
