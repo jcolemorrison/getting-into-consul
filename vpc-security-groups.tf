@@ -97,6 +97,26 @@ resource "aws_security_group_rule" "consul_server_allow_8500" {
   description              = "Allow traffic from Load Balancer."
 }
 
+resource "aws_security_group_rule" "consul_server_allow_client_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow traffic from Consul Client."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_client_8301" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow traffic from Consul Client."
+}
+
 resource "aws_security_group_rule" "consul_server_allow_22_bastion" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"

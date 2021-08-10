@@ -17,7 +17,7 @@ resource "aws_lb" "alb" {
 resource "aws_lb_target_group" "alb_targets" {
   name_prefix          = "csul-"
   port                 = 8500
-  protocol             = "HTTPS"
+  protocol             = "HTTP"
   vpc_id               = aws_vpc.consul.id
   deregistration_delay = 30
   target_type          = "instance"
@@ -26,7 +26,7 @@ resource "aws_lb_target_group" "alb_targets" {
   health_check {
     enabled             = true
     interval            = 10
-    path                = "/v1/health/node" // the consul API health port?
+    path                = "/v1/status/leader" // the consul API health port?
     protocol            = "HTTP"            // switch to HTTPS?
     timeout             = 5
     healthy_threshold   = 3
