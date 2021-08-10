@@ -18,6 +18,7 @@ resource "aws_instance" "consul_server" {
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_server.id]
   subnet_id              = aws_subnet.private[0].id
+  iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
 
   tags = merge(
     { "Name" = "${var.main_project_tag}-server" },
@@ -35,6 +36,7 @@ resource "aws_instance" "consul_client" {
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]
   subnet_id              = aws_subnet.private[1].id
+  iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
 
   tags = merge(
     { "Name" = "${var.main_project_tag}-client" },
@@ -42,6 +44,7 @@ resource "aws_instance" "consul_client" {
   )
 
 	user_data = base64encode(templatefile("${path.module}/scripts/client.sh", {
-    # for injecting variables
+    PROJECT_TAG = "Project"
+    PROJECT_VALUE = var.main_project_tag
   }))
 }
