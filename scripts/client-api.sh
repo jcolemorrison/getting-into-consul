@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Hello Consul Client!"
+echo "Hello Consul Client API!"
 
 # Install Consul.  This creates...
 # 1 - a default /etc/consul.d/consul.hcl

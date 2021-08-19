@@ -94,7 +94,7 @@ resource "aws_security_group_rule" "consul_server_allow_8500" {
   from_port                = 8500
   to_port                  = 8500
   source_security_group_id = aws_security_group.load_balancer.id
-  description              = "Allow traffic from Load Balancer."
+  description              = "Allow HTTP traffic from Load Balancer."
 }
 
 resource "aws_security_group_rule" "consul_server_allow_client_8500" {
@@ -104,7 +104,7 @@ resource "aws_security_group_rule" "consul_server_allow_client_8500" {
   from_port                = 8500
   to_port                  = 8500
   source_security_group_id = aws_security_group.consul_client.id
-  description              = "Allow traffic from Consul Client."
+  description              = "Allow HTTP traffic from Consul Client."
 }
 
 resource "aws_security_group_rule" "consul_server_allow_client_8301" {
@@ -114,7 +114,7 @@ resource "aws_security_group_rule" "consul_server_allow_client_8301" {
   from_port                = 8301
   to_port                  = 8301
   source_security_group_id = aws_security_group.consul_client.id
-  description              = "Allow traffic from Consul Client."
+  description              = "Allow LAN traffic from Consul Client."
 }
 
 resource "aws_security_group_rule" "consul_server_allow_22_bastion" {
@@ -156,7 +156,17 @@ resource "aws_security_group_rule" "consul_client_allow_8500" {
   from_port                = 8500
   to_port                  = 8500
   source_security_group_id = aws_security_group.load_balancer.id
-  description              = "Allow traffic from Load Balancer."
+  description              = "Allow HTTP traffic from Load Balancer."
+}
+
+resource "aws_security_group_rule" "consul_client_allow_9090" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9090
+  to_port                  = 9090
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow traffic from Consul Clients for Fake Service."
 }
 
 resource "aws_security_group_rule" "consul_client_allow_22_bastion" {
