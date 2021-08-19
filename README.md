@@ -10,7 +10,7 @@ This repo is split into branches, each representing a part in the series:
 
 ## The Initial Architecture:
 
-![Getting into Consul Infrastructure](docs/consul-hard-way.png)
+![Getting into Consul Infrastructure](docs/getting-into-consul.png)
 
 ## Getting Started
 
