@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "alb_targets_web" {
   health_check {
     enabled             = true
     interval            = 10
-    path                = "/v1/status/leader" // the consul API health port?
+    path                = "/health" // the consul API health port?
     protocol            = "HTTP"            // switch to HTTPS?
     timeout             = 5
     healthy_threshold   = 3
