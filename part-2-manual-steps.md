@@ -1,6 +1,6 @@
 # Manual Beginning to End for Part-2
 
-These are the manual instructions for setting up service discovery with the [Fake Service](https://github.com/nicholasjackson/fake-service) assuming that you've used this repo's Terraform code to create the AWS resources.  The required steps are largely the same between both.
+These are the manual instructions for setting up service discovery with the [Fake Service](https://github.com/nicholasjackson/fake-service) assuming that you've used this repo's Terraform code to create the AWS resources.  The required steps are largely the same between both.  These steps are what one would take if you DID NOT use the `scripts/client-api.sh` and `scripts/client-web.sh` to do the work (though the update to those is pending).
 
 ## Beginning to End with API
 
