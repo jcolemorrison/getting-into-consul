@@ -30,7 +30,7 @@ resource "aws_instance" "consul_server" {
   }))
 }
 
-resource "aws_instance" "consul_client" {
+resource "aws_instance" "consul_client_web" {
   ami                    = var.ami_id
   instance_type          = "t3.small"
   key_name               = var.ec2_key_pair_name
@@ -39,11 +39,30 @@ resource "aws_instance" "consul_client" {
   iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
 
   tags = merge(
-    { "Name" = "${var.main_project_tag}-client" },
+    { "Name" = "${var.main_project_tag}-client-web" },
     { "Project" = var.main_project_tag }
   )
 
-	user_data = base64encode(templatefile("${path.module}/scripts/client.sh", {
+	user_data = base64encode(templatefile("${path.module}/scripts/client-web.sh", {
+    PROJECT_TAG = "Project"
+    PROJECT_VALUE = var.main_project_tag
+  }))
+}
+
+resource "aws_instance" "consul_client_api" {
+  ami                    = var.ami_id
+  instance_type          = "t3.small"
+  key_name               = var.ec2_key_pair_name
+  vpc_security_group_ids = [aws_security_group.consul_client.id]
+  subnet_id              = aws_subnet.private[1].id
+  iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-client-api" },
+    { "Project" = var.main_project_tag }
+  )
+
+	user_data = base64encode(templatefile("${path.module}/scripts/client-api.sh", {
     PROJECT_TAG = "Project"
     PROJECT_VALUE = var.main_project_tag
   }))
