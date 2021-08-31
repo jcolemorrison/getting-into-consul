@@ -6,6 +6,10 @@ resource "aws_launch_template" "consul_server" {
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_server.id]
 
+  iam_instance_profile {
+    name = aws_iam_instance_profile.consul_instance_profile.name
+  }
+
   tag_specifications {
     resource_type = "instance"
 
@@ -35,12 +39,16 @@ resource "aws_launch_template" "consul_server" {
 }
 
 # Consul Client Web Launch Template
-resource "aws_launch_template" "consul_server" {
+resource "aws_launch_template" "consul_client_web" {
   name_prefix            = "${var.main_project_tag}-web-lt-"
   image_id               = var.ami_id
   instance_type          = "t3.micro"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.consul_instance_profile.name
+  }
 
   tag_specifications {
     resource_type = "instance"
@@ -72,12 +80,16 @@ resource "aws_launch_template" "consul_server" {
 }
 
 # Consul Client API Launch Template
-resource "aws_launch_template" "consul_server" {
+resource "aws_launch_template" "consul_client_api" {
   name_prefix            = "${var.main_project_tag}-api-lt-"
   image_id               = var.ami_id
   instance_type          = "t3.micro"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.consul_instance_profile.name
+  }
 
   tag_specifications {
     resource_type = "instance"
