@@ -52,15 +52,6 @@ resource "aws_lb_listener" "alb_http" {
   }
 }
 
-## Target Group Attachment
-
-resource "aws_lb_target_group_attachment" "consul_server" {
-  target_group_arn = aws_lb_target_group.alb_targets.arn
-  target_id        = aws_instance.consul_server.id
-  port             = 8500
-}
-
-
 ## Application Load Balancer - Consul Web Client
 resource "aws_lb" "alb_web" {
   name_prefix        = "csulw-" # 6 character length
@@ -113,12 +104,4 @@ resource "aws_lb_listener" "alb_http_web" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.alb_targets_web.arn
   }
-}
-
-## Target Group Attachment
-
-resource "aws_lb_target_group_attachment" "consul_client_web" {
-  target_group_arn = aws_lb_target_group.alb_targets_web.arn
-  target_id        = aws_instance.consul_client_web.id
-  port             = 9090
 }

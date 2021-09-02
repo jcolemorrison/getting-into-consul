@@ -5,3 +5,4 @@ terraform.tfstate
 secrets.auto.tfvars
 terraform.tfvars
 .DS_Store
+peers.json

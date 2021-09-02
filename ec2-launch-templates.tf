@@ -34,7 +34,9 @@ resource "aws_launch_template" "consul_server" {
   )
 
   user_data = base64encode(templatefile("${path.module}/scripts/server.sh", {
-    # for injecting variables
+    PROJECT_TAG   = "Project"
+    PROJECT_VALUE = var.main_project_tag
+    BOOTSTRAP_NUMBER = var.server_min_count
   }))
 }
 

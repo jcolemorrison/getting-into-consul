@@ -43,7 +43,6 @@ variable "vpc_private_subnet_count" {
 }
 
 # EC2 Variables
-
 variable "ami_id" {
   description = "AMI ID to be used on all AWS EC2 Instances."
   type        = string
@@ -53,6 +52,63 @@ variable "ami_id" {
 variable "ec2_key_pair_name" {
   description = "An existing EC2 key pair used to access the bastion server."
   type        = string
+}
+
+## Consul Servers
+variable "server_desired_count" {
+  description = "The desired number of consul servers.  For Raft elections, should be an odd number."
+  type        = number
+  default     = 3
+}
+
+variable "server_min_count" {
+  description = "The minimum number of consul servers."
+  type        = number
+  default     = 3
+}
+
+variable "server_max_count" {
+  description = "The maximum number of consul servers."
+  type        = number
+  default     = 3
+}
+
+## Consul Web Clients
+variable "client_web_desired_count" {
+  description = "The desired number of consul web clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_web_min_count" {
+  description = "The minimum number of consul web clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_web_max_count" {
+  description = "The maximum number of consul web clients."
+  type        = number
+  default     = 1
+}
+
+## Consul API Clients
+variable "client_api_desired_count" {
+  description = "The desired number of consul api clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_api_min_count" {
+  description = "The minimum number of consul api clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_api_max_count" {
+  description = "The maximum number of consul api clients."
+  type        = number
+  default     = 1
 }
 
 # Allowed Traffic into the Bastion

@@ -29,7 +29,9 @@ bind_addr = "0.0.0.0"
 
 advertise_addr = "$local_ip"
 
-bootstrap_expect=1
+bootstrap_expect=${BOOTSTRAP_NUMBER}
+
+retry_join = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
 EOF
 
 # Start Consul
