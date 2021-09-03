@@ -2,10 +2,10 @@
 
 These are the manual instructions for the things covered in [Part 3](https://www.youtube.com/watch?v=_lIJg0c5les&list=PL81sUbsFNc5b8i2g2sB_tG-PuZxEdlDpK&index=3) of our ["Getting into Consul" series](https://www.youtube.com/watch?v=0H06VKvlTJQ&list=PL81sUbsFNc5b8i2g2sB_tG-PuZxEdlDpK).  In this part we covered three things:
 
-1. Health Checks and Hot Reloading with Consul for the Clients
-2. Scaling Consul Infrastructure on AWS
-3. Dealing with Outages
-4. Setting up Telemetry and Metrics
+1. [Health Checks and Hot Reloading with Consul for the Clients](#1-health-checks-and-hot-reloading-with-consul-for-the-clients)
+2. [Scaling Consul Infrastructure on AWS](#2-scaling-consul-infrastructure-on-aws)
+3. [Dealing with Outages](#3-dealing-with-outages)
+4. [Setting up Telemetry and Metrics](#4-setting-up-telemetry-and-metrics)
 
 In this document, we'll walk through the manual steps required to get through part 3 if you'd rather take that approach over using the automated script.  The instructions will be sparse in description.  If you need more depth and reasoning behind why we did things, checkout the [video](https://www.youtube.com/watch?v=_lIJg0c5les)!
 
