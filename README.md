@@ -10,7 +10,7 @@ This repo is split into branches, each representing a part in the series:
 - **[Part 3 - After Part 3 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-3)**
 - [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
-## The Initial Architecture:
+## The Architecture So Far:
 
 ![Getting into Consul Infrastructure](docs/getting-into-consul-part-3.png)
 
