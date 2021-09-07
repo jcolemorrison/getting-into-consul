@@ -265,3 +265,5 @@ sudo systemctl restart consul
 3. Point Prometheus to the `<your_host>:8500/v1/agent/metrics?format=prometheus` endpoint.
 
 Note: not all things in `consul.hcl`, or consul config files in general, are hot reloadable via `consul reload`.  In this case the `telemetry` block is not, so consul must be completely restarted via `systemctl`.
+
+Note: because we're not using Prometheus in the series at the moment, this block won't be added to the userdata script.

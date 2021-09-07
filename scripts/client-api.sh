@@ -64,6 +64,13 @@ cat > /etc/consul.d/api.hcl <<- EOF
 service {
   name = "api"
   port = 9090
+
+  check {
+    id = "api"
+    name = "HTTP API on Port 9090"
+    http = "http://localhost:9090/health"
+    interval = "30s"
+  }
 }
 EOF
 

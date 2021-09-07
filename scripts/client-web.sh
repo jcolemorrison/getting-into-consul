@@ -65,6 +65,13 @@ cat > /etc/consul.d/web.hcl <<- EOF
 service {
   name = "web"
   port = 9090
+
+  check {
+    id = "web"
+    name = "HTTP Web on Port 9090"
+    http = "http://localhost:9090/health"
+    interval = "30s"
+  }
 }
 EOF
 
