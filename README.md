@@ -12,7 +12,7 @@ This repo is split into branches, each representing a part in the series:
 
 ## The Initial Architecture:
 
-![Getting into Consul Infrastructure](docs/getting-into-consul-part-2.png)
+![Getting into Consul Infrastructure](docs/getting-into-consul-part-3.png)
 
 ## Getting Started
 
@@ -51,6 +51,15 @@ To set use this repo, take the following steps:
 	- Select **Load Balancers**.
 	- Select the load balancer created for our project, and grab its DNS.
 	- Navigate to the DNS.
+
+### Setting Things Up Manually
+
+Although this repo is set up so that you can get everything working via `terraform apply`, if you'd like to take the manual steps for learning, you can reference these documents:
+
+1. [From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)
+2. [From Part 2 to Part 3 Manual Steps](part-2-manual-steps.md)
+
+For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
 ### Notes
 
