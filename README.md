@@ -1,6 +1,6 @@
 # Getting into Consul
 
-This is the repo used in the [Getting into Consul](https://youtu.be/0H06VKvlTJQ) series where we walk through building out a consul based architecture and cluster from scratch.
+This is the repo used in the [Getting into HashiCorp Consul](https://www.youtube.com/playlist?list=PL81sUbsFNc5b8i2g2sB_tG-PuZxEdlDpK) series where we walk through building out a Consul based architecture and cluster, on AWS, from scratch.
 
 This repo is split into branches, each representing a part in the series:
 
