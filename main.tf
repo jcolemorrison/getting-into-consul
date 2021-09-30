@@ -11,6 +11,9 @@ provider "aws" {
   region = var.aws_default_region
 }
 
+# for creating Consul Gossip encryption key
+provider "random" {}
+
 # filter out wavelength zones
 data "aws_availability_zones" "available" {
   state = "available"

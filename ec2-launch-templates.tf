@@ -1,3 +1,8 @@
+# Generate Consul gossip encryption key
+resource "random_id" "gossip_key" {
+  byte_length = 32
+}
+
 # Consul Server Launch Template
 resource "aws_launch_template" "consul_server" {
   name_prefix            = "${var.main_project_tag}-server-lt-"
@@ -37,6 +42,7 @@ resource "aws_launch_template" "consul_server" {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
     BOOTSTRAP_NUMBER = var.server_min_count
+    GOSSIP_KEY = random_id.gossip_key.b64_std
   }))
 }
 
@@ -78,6 +84,7 @@ resource "aws_launch_template" "consul_client_web" {
   user_data = base64encode(templatefile("${path.module}/scripts/client-web.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
+    GOSSIP_KEY = random_id.gossip_key.b64_std
   }))
 }
 
@@ -119,5 +126,6 @@ resource "aws_launch_template" "consul_client_api" {
   user_data = base64encode(templatefile("${path.module}/scripts/client-api.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
+    GOSSIP_KEY = random_id.gossip_key.b64_std
   }))
 }

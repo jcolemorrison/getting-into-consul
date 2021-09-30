@@ -32,6 +32,8 @@ advertise_addr = "$local_ip"
 bootstrap_expect=${BOOTSTRAP_NUMBER}
 
 retry_join = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
+
+encrypt = "${GOSSIP_KEY}"
 EOF
 
 # Start Consul
