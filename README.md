@@ -8,8 +8,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 1 - After Part 1 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-1)
 - [Part 2 - After Part 2 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-2)
 - [Part 3 - After Part 3 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-3)
-- [Part 4 - Gossip Encryption, TLS Encryption, ACLs](https://github.com/jcolemorrison/getting-into-consul/tree/part-4)
-- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
+- **[Part 4 - Gossip Encryption, TLS Encryption, ACLs](https://github.com/jcolemorrison/getting-into-consul/tree/part-4)**
+- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
 ## The Architecture So Far:
 
