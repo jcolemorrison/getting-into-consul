@@ -8,6 +8,7 @@ This repo is split into branches, each representing a part in the series:
 - [Part 1 - After Part 1 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-1)
 - [Part 2 - After Part 2 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-2)
 - [Part 3 - After Part 3 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-3)
+- [Part 4 - Gossip Encryption, TLS Encryption, ACLs](https://github.com/jcolemorrison/getting-into-consul/tree/part-4)
 - **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
@@ -60,6 +61,10 @@ Although this repo is set up so that you can get everything working via `terrafo
 2. [From Part 2 to Part 3 Manual Steps](part-2-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
+
+### For Part 4
+
+In order to follow along beyond part 4, for now, you'll need to follow the instructions in the [Part 4 Manual Steps](part-4-manual-steps.md) for setting up ACLs.  Automation will be added later for that.
 
 ### Notes
 

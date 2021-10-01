@@ -285,7 +285,7 @@ acl = {
   enable_token_persistence = true
 
   tokens {
-    agent = "<your_consul_client_acl_token>"
+    default = "<your_consul_client_acl_token>"
   }
 }
 ```
