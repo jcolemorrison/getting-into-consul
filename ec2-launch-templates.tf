@@ -43,6 +43,9 @@ resource "aws_launch_template" "consul_server" {
     PROJECT_VALUE = var.main_project_tag
     BOOTSTRAP_NUMBER = var.server_min_count
     GOSSIP_KEY = random_id.gossip_key.b64_std
+    CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
+    SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_signed_cert.cert_pem
+    SERVER_PRIVATE_KEY = tls_private_key.server_key.private_key_pem
   }))
 }
 
@@ -85,6 +88,9 @@ resource "aws_launch_template" "consul_client_web" {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
     GOSSIP_KEY = random_id.gossip_key.b64_std
+    CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
+    CLIENT_PUBLIC_KEY = tls_locally_signed_cert.client_web_signed_cert.cert_pem
+    CLIENT_PRIVATE_KEY = tls_private_key.client_web_key.private_key_pem
   }))
 }
 
@@ -127,5 +133,8 @@ resource "aws_launch_template" "consul_client_api" {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
     GOSSIP_KEY = random_id.gossip_key.b64_std
+    CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
+    CLIENT_PUBLIC_KEY = tls_locally_signed_cert.client_api_signed_cert.cert_pem
+    CLIENT_PRIVATE_KEY = tls_private_key.client_api_key.private_key_pem
   }))
 }

@@ -14,6 +14,20 @@ rm gpg.txt
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
 
+mkdir /etc/consul.d/certs
+
+cat > /etc/consul.d/certs/consul-agent-ca.pem <<- EOF
+${CA_PUBLIC_KEY}
+EOF
+
+cat > /etc/consul.d/certs/client-cert.pem <<- EOF
+${CLIENT_PUBLIC_KEY}
+EOF
+
+cat > /etc/consul.d/certs/client-key.pem <<- EOF
+${CLIENT_PRIVATE_KEY}
+EOF
+
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
 data_dir = "/opt/consul"
@@ -29,6 +43,18 @@ advertise_addr = "$local_ip"
 retry_join = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
 
 encrypt = "${GOSSIP_KEY}"
+
+verify_incoming = true
+
+verify_outgoing = true
+
+verify_server_hostname = true
+
+ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
+
+cert_file = "/etc/consul.d/certs/client-cert.pem"
+
+key_file = "/etc/consul.d/certs/client-key.pem"
 EOF
 
 # Start Consul
