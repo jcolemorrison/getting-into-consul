@@ -177,48 +177,6 @@ systemctl restart consul
 
 ## Part 3 - Secure Consul with Access Control Lists (ACLs)
 
-Ackles apparently.
-
-The only differences we did here from the Learn guide was using these commands:
-
-```
-# Creates a token for nodes - so the consul agents
-consul acl token create -node-identity="ip-10-255-2-56:dc1"
-
-# Creates a token for the services, so that they can also interact with consul
-consul acl token create -service-identity="api:dc1"
-```
-
-As opposed to the direct instructions.  In a nutshell...
-
-1. We stopped Consul on all of the nodes.
-
-2. On the `server`, we added the ACL block
-
-3. We then bootstrapped the "master" token, or whatever you want to call it.  We didn't actually bind that to anything in the server, other than making it available to the main consul client, so that "we" could interact with it.
-
-4. We then looked at teh UI.
-
-5. After that we generated tokens for all of the agents on all of the nodes.  
-
-```
-consul acl token create -node-identity="ip-10-255-2-56:dc1"
-```
-
-6. After that we took those tokens and added them in the `acl` block as shown in files below
-
-7. After that we we generated tokens for all of the services:
-
-```
-consul acl token create -service-identity="api:dc1"
-```
-
-8.  We then added those to all of the `service.hcl` files via the `token` argument.
-
-9.  We then restarted `consul` on all of the nodes.
-
----
-
 This is the first part of adding ACLs into Consul. As discussed in the stream, these are how we can control access to the Consul API.  We didn't entirely complete it in part 4 and will continue it in part 5.
 
 1. First, stop Consul on ALL of the nodes:
