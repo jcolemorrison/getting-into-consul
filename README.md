@@ -9,8 +9,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 2 - After Part 2 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-2)
 - [Part 3 - After Part 3 has been completed](https://github.com/jcolemorrison/getting-into-consul/tree/part-3)
 - [Part 4 - Gossip Encryption, TLS Encryption, ACLs](https://github.com/jcolemorrison/getting-into-consul/tree/part-4)
-- **[Part 5 - More ACLs and External Certificate Authority](https://github.com/jcolemorrison/getting-into-consul/tree/part-5)**
-- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
+- [Part 5 - More ACLs and External Certificate Authority](https://github.com/jcolemorrison/getting-into-consul/tree/part-5)
+- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
 
@@ -47,8 +47,12 @@ To set use this repo, take the following steps:
 
 6. Run `terraform apply`!
 
-7. To check out your Consul UI...
+7. Follow [Part 4's instructions on setting up ACLs](part-4-manual-steps.md#part-3---secure-consul-with-access-control-lists-acls).
+	- automation for this coming later...
 
+8. Follow [Part 5's Instructions on completing the ACL setup](part-5-manual-steps.md).
+
+9. To check out your Consul UI...
 	- Go to the **EC2 Console**.
 	- Select **Load Balancers**.
 	- Select the load balancer created for our project, and grab its DNS.
