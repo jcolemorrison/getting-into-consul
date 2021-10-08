@@ -50,7 +50,7 @@ To set use this repo, take the following steps:
 7. Follow [Part 4's instructions on setting up ACLs](part-4-manual-steps.md#part-3---secure-consul-with-access-control-lists-acls).
 	- automation for this coming later...
 
-8. Follow [Part 5's Instructions on completing the ACL setup](part-5-manual-steps.md).
+8. Follow [Part 5's Instructions on completing the ACL setup](part-5-manual-steps.md#enabling-communication-between-web-and-api-with-acls).
 
 9. To check out your Consul UI...
 	- Go to the **EC2 Console**.
