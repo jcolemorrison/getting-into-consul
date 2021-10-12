@@ -92,6 +92,12 @@ variable "client_web_max_count" {
   default     = 1
 }
 
+variable "client_web_acl_token" {
+  description = "ACL token for consul web clients"
+  type        = string
+  default     = ""
+}
+
 ## Consul API Clients
 variable "client_api_desired_count" {
   description = "The desired number of consul api clients."
@@ -109,6 +115,12 @@ variable "client_api_max_count" {
   description = "The maximum number of consul api clients."
   type        = number
   default     = 1
+}
+
+variable "client_api_acl_token" {
+  description = "ACL token for consul api clients"
+  type        = string
+  default     = ""
 }
 
 # Allowed Traffic into the Bastion

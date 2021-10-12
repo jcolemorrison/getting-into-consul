@@ -5,11 +5,9 @@ echo "Hello Consul Client API!"
 # Install Consul.  This creates...
 # 1 - a default /etc/consul.d/consul.hcl
 # 2 - a default systemd consul.service file
-curl -fsSL https://apt.releases.hashicorp.com/gpg -o gpg.txt
-sudo apt-key add gpg.txt
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install consul unzip
-rm gpg.txt
+curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+apt update && apt install -y consul unzip
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -55,6 +53,16 @@ ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
 cert_file = "/etc/consul.d/certs/client-cert.pem"
 
 key_file = "/etc/consul.d/certs/client-key.pem"
+
+acl = {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+
+  tokens {
+    default = ""
+  }
+}
 EOF
 
 # Start Consul
@@ -90,8 +98,9 @@ systemctl start api
 # Consul Config file for our fake API service
 cat > /etc/consul.d/api.hcl <<- EOF
 service {
-  name = "api"
-  port = 9090
+  name  = "api"
+  port  = 9090
+  token = ""
 
   check {
     id = "api"
