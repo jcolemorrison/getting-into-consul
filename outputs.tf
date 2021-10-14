@@ -8,6 +8,12 @@ output "bastion_ip" {
   description = "Public IP address of bastion"
 }
 
+output "vault_addr" {
+  value       = module.hcp.hcp_vault_private_endpoint
+  description = "Private endpoint of HCP Vault cluster"
+}
+
+
 data "aws_instances" "consul_servers" {
   instance_tags = {
     Name = "${var.main_project_tag}-server"

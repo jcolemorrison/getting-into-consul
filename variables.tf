@@ -148,3 +148,22 @@ variable "allowed_traffic_cidr_blocks_ipv6" {
   type        = list(string)
   default     = ["::/0"]
 }
+
+variable "hcp_region" {
+  type        = string
+  default     = ""
+  description = "HCP region"
+}
+
+
+variable "hcp_cidr_block" {
+  type        = string
+  default     = "172.25.16.0/20"
+  description = "CIDR block of the HashiCorp Virtual Network"
+}
+
+variable "hcp_vault_public_endpoint" {
+  type        = bool
+  default     = false
+  description = "Enable HCP Vault public endpoint for cluster"
+}
