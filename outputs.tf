@@ -44,11 +44,21 @@ output "consul_server_ips" {
 }
 
 output "consul_client_api_ips" {
+  value       = data.aws_instances.consul_clients_api.private_ips
+  description = "list of api private IP addresses"
+}
+
+output "consul_client_web_ips" {
+  value       = data.aws_instances.consul_clients_web.private_ips
+  description = "list of web private IP addresses"
+}
+
+output "consul_api_token_command" {
   value       = "consul acl token create -node-identity=\"ip-${replace(data.aws_instances.consul_clients_api.private_ips.0, ".", "-")}:dc1\""
   description = "ACL command for creating a token for Consul client on API service node"
 }
 
-output "consul_client_web_ips" {
+output "consul_web_token_command" {
   value       = "consul acl token create -node-identity=\"ip-${replace(data.aws_instances.consul_clients_web.private_ips.0, ".", "-")}:dc1\""
   description = "ACL command for creating a token for Consul client on Web service node"
 }

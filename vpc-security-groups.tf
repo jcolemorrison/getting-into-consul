@@ -107,6 +107,16 @@ resource "aws_security_group_rule" "consul_server_allow_client_8500" {
   description              = "Allow HTTP traffic from Consul Client."
 }
 
+resource "aws_security_group_rule" "consul_server_allow_client_8501" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8501
+  to_port                  = 8501
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow Connect HTTPS traffic from Consul Client to Server."
+}
+
 resource "aws_security_group_rule" "consul_server_allow_client_8301" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"
