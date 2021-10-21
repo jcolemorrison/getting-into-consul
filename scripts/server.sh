@@ -64,6 +64,31 @@ acl = {
   enabled = true
   default_policy = "deny"
   enable_token_persistence = true
+  tokens = {
+    master = "${BOOTSTRAP_TOKEN}"
+    agent = "${BOOTSTRAP_TOKEN}"
+  }
+}
+
+connect {
+  enabled = true
+}
+
+auto_config {
+  authorization {
+    enabled = true
+    static = {
+      oidc_discovery_url = "${VAULT_ISSUER_URL}"
+      bound_issuer = "${VAULT_ISSUER_URL}"
+      bound_audiences = ["consul-cluster-dc1"]
+      claim_mappings = {
+        "/consul/hostname" = "node_name"
+      }
+      claim_assertions = [
+        "value.node_name == \"\$${node}\""
+      ]
+    }
+  }
 }
 EOF
 

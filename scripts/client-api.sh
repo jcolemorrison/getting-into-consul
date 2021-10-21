@@ -18,13 +18,7 @@ cat > /etc/consul.d/certs/consul-agent-ca.pem <<- EOF
 ${CA_PUBLIC_KEY}
 EOF
 
-cat > /etc/consul.d/certs/client-cert.pem <<- EOF
-${CLIENT_PUBLIC_KEY}
-EOF
-
-cat > /etc/consul.d/certs/client-key.pem <<- EOF
-${CLIENT_PRIVATE_KEY}
-EOF
+touch /etc/consul.d/jwt
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
@@ -38,11 +32,7 @@ bind_addr = "0.0.0.0"
 
 advertise_addr = "$local_ip"
 
-retry_join = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
-
-encrypt = "${GOSSIP_KEY}"
-
-verify_incoming = true
+verify_incoming = false
 
 verify_outgoing = true
 
@@ -50,18 +40,14 @@ verify_server_hostname = true
 
 ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
 
-cert_file = "/etc/consul.d/certs/client-cert.pem"
-
-key_file = "/etc/consul.d/certs/client-key.pem"
-
-acl = {
+auto_config = {
   enabled = true
-  default_policy = "deny"
-  enable_token_persistence = true
+  intro_token_file = "/etc/consul.d/jwt"
+  server_addresses = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
+}
 
-  tokens {
-    default = ""
-  }
+ports = {
+  https = 8501
 }
 EOF
 
@@ -100,7 +86,7 @@ cat > /etc/consul.d/api.hcl <<- EOF
 service {
   name  = "api"
   port  = 9090
-  token = ""
+  token = "${SERVICE_TOKEN}"
 
   check {
     id = "api"

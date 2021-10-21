@@ -92,10 +92,11 @@ variable "client_web_max_count" {
   default     = 1
 }
 
-variable "client_web_acl_token" {
-  description = "ACL token for consul web clients"
+variable "client_web_service_token" {
+  description = "Service ACL token for web"
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 ## Consul API Clients
@@ -117,11 +118,13 @@ variable "client_api_max_count" {
   default     = 1
 }
 
-variable "client_api_acl_token" {
-  description = "ACL token for consul api clients"
+variable "client_api_service_token" {
+  description = "Service ACL token for API"
   type        = string
   default     = ""
+  sensitive   = true
 }
+
 
 # Allowed Traffic into the Bastion
 variable "allowed_bastion_cidr_blocks" {
@@ -164,6 +167,6 @@ variable "hcp_cidr_block" {
 
 variable "hcp_vault_public_endpoint" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable HCP Vault public endpoint for cluster"
 }

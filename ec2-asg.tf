@@ -13,7 +13,7 @@ resource "aws_autoscaling_group" "consul_server" {
   min_size         = var.server_min_count
   max_size         = var.server_max_count
 
-  # AKA the subnets to launch resources in 
+  # AKA the subnets to launch resources in
   vpc_zone_identifier = aws_subnet.private.*.id
 
   health_check_grace_period = 300

@@ -13,52 +13,13 @@ output "vault_addr" {
   description = "Private endpoint of HCP Vault cluster"
 }
 
-
-data "aws_instances" "consul_servers" {
-  instance_tags = {
-    Name = "${var.main_project_tag}-server"
-  }
-
-  instance_state_names = ["running"]
+output "vault_public_addr" {
+  value       = module.hcp.hcp_vault_public_endpoint
+  description = "Public endpoint of HCP Vault cluster"
 }
 
-data "aws_instances" "consul_clients_api" {
-  instance_tags = {
-    Name = "${var.main_project_tag}-api"
-  }
-
-  instance_state_names = ["running"]
-}
-
-data "aws_instances" "consul_clients_web" {
-  instance_tags = {
-    Name = "${var.main_project_tag}-web"
-  }
-
-  instance_state_names = ["running"]
-}
-
-output "consul_server_ips" {
-  value       = data.aws_instances.consul_servers.private_ips
-  description = "list of Consul server private IP addresses"
-}
-
-output "consul_client_api_ips" {
-  value       = data.aws_instances.consul_clients_api.private_ips
-  description = "list of api private IP addresses"
-}
-
-output "consul_client_web_ips" {
-  value       = data.aws_instances.consul_clients_web.private_ips
-  description = "list of web private IP addresses"
-}
-
-output "consul_api_token_command" {
-  value       = "consul acl token create -node-identity=\"ip-${replace(data.aws_instances.consul_clients_api.private_ips.0, ".", "-")}:dc1\""
-  description = "ACL command for creating a token for Consul client on API service node"
-}
-
-output "consul_web_token_command" {
-  value       = "consul acl token create -node-identity=\"ip-${replace(data.aws_instances.consul_clients_web.private_ips.0, ".", "-")}:dc1\""
-  description = "ACL command for creating a token for Consul client on Web service node"
+output "consul_token" {
+  value       = random_uuid.consul_bootstrap_token.result
+  description = "Consul management token"
+  sensitive   = true
 }

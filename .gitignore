@@ -9,3 +9,4 @@ notes.md
 peers.json
 
 tokens/
+tokens.auto.tfvars
