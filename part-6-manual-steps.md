@@ -50,7 +50,16 @@ Retrieve the hostname of each Consul client.
    export API_NODE_NAME="ip-10-*-*-*"
    ```
 
-1. You'll find the JWT tokens for each node under the `tokens/` directory.
+1. In your terminal, run `vault.sh`. This updates the issuer in HCP Vault.
+   ```shell
+   bash vault.sh
+   ```
+
+1. In your terminal, run `vault_oidc.sh`. This generates JWTs for api and web services.
+   You'll find the JWT tokens for each node under the `tokens/` directory.
+   ```shell
+   bash vault_oidc.sh
+   ```
 
 ## Add JWT to Consul clients.
 
