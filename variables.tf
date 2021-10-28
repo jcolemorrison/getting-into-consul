@@ -8,7 +8,7 @@ variable "main_project_tag" {
 variable "aws_default_region" {
   description = "The default region that all resources will be deployed into."
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 
 # VPC Variables
