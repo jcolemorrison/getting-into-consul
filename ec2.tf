@@ -1,5 +1,5 @@
 resource "aws_instance" "bastion" {
-  ami                         = var.ami_id
+  ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.micro"
   key_name                    = var.ec2_key_pair_name
   vpc_security_group_ids      = [aws_security_group.bastion.id]

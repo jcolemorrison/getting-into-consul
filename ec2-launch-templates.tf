@@ -6,11 +6,26 @@ resource "random_id" "gossip_key" {
 ## Set bootstrap ACL token
 resource "random_uuid" "consul_bootstrap_token" {}
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-*-18.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
 
 # Consul Server Launch Template
 resource "aws_launch_template" "consul_server" {
   name_prefix            = "${var.main_project_tag}-server-lt-"
-  image_id               = var.ami_id
+  image_id               = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_server.id]
@@ -58,7 +73,7 @@ resource "aws_launch_template" "consul_server" {
 # Consul Client Web Launch Template
 resource "aws_launch_template" "consul_client_web" {
   name_prefix            = "${var.main_project_tag}-web-lt-"
-  image_id               = var.ami_id
+  image_id               = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]
@@ -102,7 +117,7 @@ resource "aws_launch_template" "consul_client_web" {
 # Consul Client API Launch Template
 resource "aws_launch_template" "consul_client_api" {
   name_prefix            = "${var.main_project_tag}-api-lt-"
-  image_id               = var.ami_id
+  image_id               = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]

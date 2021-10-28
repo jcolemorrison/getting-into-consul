@@ -8,7 +8,7 @@ variable "main_project_tag" {
 variable "aws_default_region" {
   description = "The default region that all resources will be deployed into."
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
 # VPC Variables
@@ -40,13 +40,6 @@ variable "vpc_private_subnet_count" {
   description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
   type        = number
   default     = 2
-}
-
-# EC2 Variables
-variable "ami_id" {
-  description = "AMI ID to be used on all AWS EC2 Instances."
-  type        = string
-  default     = "ami-0747bdcabd34c712a" # Latest Ubuntu 18.04 LTS (HVM), SSD Volume Type
 }
 
 variable "ec2_key_pair_name" {
