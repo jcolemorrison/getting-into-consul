@@ -42,13 +42,6 @@ variable "vpc_private_subnet_count" {
   default     = 2
 }
 
-# EC2 Variables
-variable "ami_id" {
-  description = "AMI ID to be used on all AWS EC2 Instances."
-  type        = string
-  default     = "ami-0747bdcabd34c712a" # Latest Ubuntu 18.04 LTS (HVM), SSD Volume Type
-}
-
 variable "ec2_key_pair_name" {
   description = "An existing EC2 key pair used to access the bastion server."
   type        = string
@@ -92,6 +85,13 @@ variable "client_web_max_count" {
   default     = 1
 }
 
+variable "client_web_service_token" {
+  description = "Service ACL token for web"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 ## Consul API Clients
 variable "client_api_desired_count" {
   description = "The desired number of consul api clients."
@@ -110,6 +110,14 @@ variable "client_api_max_count" {
   type        = number
   default     = 1
 }
+
+variable "client_api_service_token" {
+  description = "Service ACL token for API"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 
 # Allowed Traffic into the Bastion
 variable "allowed_bastion_cidr_blocks" {
@@ -135,4 +143,34 @@ variable "allowed_traffic_cidr_blocks_ipv6" {
   description = "List of IPv6 CIDR blocks allowed to send requests to your consul server endpoint.  Defaults to EVERYWHERE."
   type        = list(string)
   default     = ["::/0"]
+}
+
+variable "hcp_region" {
+  type        = string
+  default     = ""
+  description = "HCP region"
+}
+
+variable "hcp_cidr_block" {
+  type        = string
+  default     = "172.25.16.0/20"
+  description = "CIDR block of the HashiCorp Virtual Network"
+}
+
+variable "hcp_vault_public_endpoint" {
+  type        = bool
+  default     = true
+  description = "Enable HCP Vault public endpoint for cluster"
+}
+
+variable "hcp_client_id" {
+  type = string
+  description = "Client ID for HCP"
+  sensitive   = true
+}
+
+variable "hcp_client_secret" {
+  type = string
+  description = "Client Secret for HCP"
+  sensitive   = true
 }

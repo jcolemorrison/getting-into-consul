@@ -2,13 +2,22 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.49.0"
+      version = "~> 3.62.0"
+    }
+    hcp = {
+      source  = "hashicorp/hcp"
+      version = "~> 0.20.0"
     }
   }
 }
 
 provider "aws" {
   region = var.aws_default_region
+}
+
+provider "hcp" {
+  client_id = var.hcp_client_id
+  client_secret = var.hcp_client_secret
 }
 
 # for creating Consul Gossip encryption key
@@ -19,7 +28,7 @@ data "aws_availability_zones" "available" {
   state = "available"
   filter {
     name   = "group-name"
-    values = ["us-east-1"]
+    values = [var.aws_default_region]
   }
 }
 
