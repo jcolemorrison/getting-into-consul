@@ -199,6 +199,27 @@ resource "aws_security_group_rule" "consul_client_allow_8500" {
   description              = "Allow HTTP traffic from Load Balancer."
 }
 
+resource "aws_security_group_rule" "consul_client_allow_8301" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow traffic between clients."
+}
+
+# Otherwise we get an i/o timeout error from the server about the clients
+resource "aws_security_group_rule" "consul_client_allow_server_8301" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_server.id
+  description              = "Allow traffic from client to server."
+}
+
 resource "aws_security_group_rule" "consul_client_allow_lb_9090" {
   security_group_id        = aws_security_group.consul_client.id
   type                     = "ingress"

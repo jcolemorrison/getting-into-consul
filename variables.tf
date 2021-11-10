@@ -151,7 +151,6 @@ variable "hcp_region" {
   description = "HCP region"
 }
 
-
 variable "hcp_cidr_block" {
   type        = string
   default     = "172.25.16.0/20"
@@ -162,4 +161,16 @@ variable "hcp_vault_public_endpoint" {
   type        = bool
   default     = true
   description = "Enable HCP Vault public endpoint for cluster"
+}
+
+variable "hcp_client_id" {
+  type = string
+  description = "Client ID for HCP"
+  sensitive   = true
+}
+
+variable "hcp_client_secret" {
+  type = string
+  description = "Client Secret for HCP"
+  sensitive   = true
 }
