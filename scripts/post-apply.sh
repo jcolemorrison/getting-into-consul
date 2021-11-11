@@ -24,7 +24,7 @@ do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
 	echo "client_api_node_id_token_$API_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" > tokens.txt
-	API_NODE=((API_NODE++))
+	API_NODE=$((API_NODE++))
 done
 
 # Node Identity Tokens - WEB
@@ -39,7 +39,7 @@ do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
 	echo "client_web_node_id_token_$WEB_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-	WEB_NODE=((WEB_NODE++))
+	WEB_NODE=$((WEB_NODE++))
 done
 
 # Service Tokens

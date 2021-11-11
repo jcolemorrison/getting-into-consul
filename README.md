@@ -80,7 +80,8 @@ To set use this repo, take the following steps:
 		sudo systemctl restart web
 		```
 
-11. Create the `allow-dns.hcl` policy and attach it to the Node Identity tokens for the `api` and `web` nodes:
+11. (Optional) Create the `allow-dns` policy and attach it to the Node Identity tokens for the `api` and `web` nodes:
+	0. (These steps are optional because the rules in the allow-dns policy are now included in the default ACL attached to the node identity token)
 	1. Access the consul console by heading to your application load balancer's DNS printed in the terraform outputs as `consul_server`
 	2. Go to **Policies** and click **Create**.
 	3. For **Name** enter "allow-dns" and paste the contents of `./policies/allow-dns.hcl` into the **Rules** field.
