@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.49.0"
+      version = "~> 3.62.0"
     }
   }
 }
@@ -19,7 +19,7 @@ data "aws_availability_zones" "available" {
   state = "available"
   filter {
     name   = "group-name"
-    values = ["us-east-1"]
+    values = [var.aws_default_region]
   }
 }
 

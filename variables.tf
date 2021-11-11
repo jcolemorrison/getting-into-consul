@@ -49,6 +49,12 @@ variable "ami_id" {
   default     = "ami-0747bdcabd34c712a" # Latest Ubuntu 18.04 LTS (HVM), SSD Volume Type
 }
 
+variable "use_latest_ami" {
+  description = "Whether or not to use the hardcoded ami_id value or to grab the latest value from SSM parameter store."
+  type = bool
+  default = true
+}
+
 variable "ec2_key_pair_name" {
   description = "An existing EC2 key pair used to access the bastion server."
   type        = string

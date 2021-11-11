@@ -5,11 +5,9 @@ echo "Hello Consul Server!"
 # Install Consul.  This creates...
 # 1 - a default /etc/consul.d/consul.hcl
 # 2 - a default systemd consul.service file
-curl -fsSL https://apt.releases.hashicorp.com/gpg -o gpg.txt
-sudo apt-key add gpg.txt
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-sudo apt-get update && sudo apt-get install consul
-rm gpg.txt
+curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+apt update && apt install -y consul
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -34,9 +32,20 @@ data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
 
-ui_config{
+ui_config {
   enabled = true
 }
+
+acl = {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+  tokens = {
+    master = "${BOOTSTRAP_TOKEN}"
+    agent = "${BOOTSTRAP_TOKEN}"
+  }
+}
+
 server = true
 
 bind_addr = "0.0.0.0"
