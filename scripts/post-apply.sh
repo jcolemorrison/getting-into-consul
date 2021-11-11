@@ -18,11 +18,13 @@ API_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
 			--query "AutoScalingInstances[?AutoScalingGroupName=='$API_ASG_NAME'].InstanceId") \
 --query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
 
+API_NODE=0
 for node in $API_INSTANCES
 do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
-	echo "client_api_node_id_token = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" > tokens.txt
+	echo "client_api_node_id_token_$API_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" > tokens.txt
+	API_NODE=((API_NODE++))
 done
 
 # Node Identity Tokens - WEB
@@ -31,11 +33,13 @@ WEB_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
 			--query "AutoScalingInstances[?AutoScalingGroupName=='$WEB_ASG_NAME'].InstanceId") \
 --query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
 
+WEB_NODE=0
 for node in $WEB_INSTANCES
 do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
-	echo "client_web_node_id_token = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	echo "client_web_node_id_token_$WEB_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	WEB_NODE=((WEB_NODE++))
 done
 
 # Service Tokens

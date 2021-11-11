@@ -3,6 +3,11 @@ output "consul_server" {
   description = "DNS name of AWS ALB for Consul server"
 }
 
+output "web_server" {
+	value = aws_lb.alb_web.dns_name
+  description = "DNS name of AWS ALB for the fake web service"
+}
+
 output "bastion_ip" {
   value       = aws_instance.bastion.public_ip
   description = "Public IP address of bastion"
