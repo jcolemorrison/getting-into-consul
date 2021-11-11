@@ -7,6 +7,6 @@ terraform.tfvars
 .DS_Store
 notes.md
 peers.json
-
+tokens.txt
 tokens/
 tokens.auto.tfvars
