@@ -104,7 +104,9 @@ To set use this repo, take the following steps:
 Although this repo is set up so that you can get everything working via `terraform apply`, if you'd like to take the manual steps for learning, you can reference these documents:
 
 1. [From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)
-2. [From Part 2 to Part 3 Manual Steps](part-2-manual-steps.md)
+2. [From Part 2 to Part 3 Manual Steps](part-3-manual-steps.md)
+3. [From Part 3 to Part 4 Manual Steps](part-4-manual-steps.md)
+4. [From Part 4 to Part 5 Manual Steps](part-4-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
