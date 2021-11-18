@@ -69,6 +69,29 @@ ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
 cert_file = "/etc/consul.d/certs/server-cert.pem"
 
 key_file = "/etc/consul.d/certs/server-key.pem"
+
+# Below is what's required for service mesh
+ports {
+  grpc = 8502
+}
+
+connect {
+  enabled = true
+}
+
+# these are the default settings used for the proxies
+# the equivalent for services is `service-defaults` in the `kind` argument
+config_entries {
+  bootstrap = [
+    {
+      kind = "proxy-defaults"
+      name = "global"
+      config {
+        protocol                   = "http"
+      }
+    }
+  ]
+}
 EOF
 
 # Start Consul

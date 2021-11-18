@@ -9,6 +9,11 @@ curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 apt update && apt install -y consul unzip
 
+# Install Envoy
+curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
+func-e use 1.18.4
+cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin
+
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
 
@@ -63,6 +68,10 @@ acl = {
     default = "" # put node-identity token here
   }
 }
+
+ports {
+  grpc = 8502
+}
 EOF
 
 # Start Consul
@@ -83,7 +92,7 @@ After=syslog.target network.target
 [Service]
 Environment="MESSAGE=Hello from Web"
 Environment="NAME=web"
-Environment="UPSTREAM_URIS=http://api.service.consul:9090"
+Environment="UPSTREAM_URIS=http://127.0.0.1:9091"
 ExecStart=/usr/local/bin/fake-service
 ExecStop=/bin/sleep 5
 Restart=always
@@ -109,10 +118,47 @@ service {
     http = "http://localhost:9090/health"
     interval = "30s"
   }
+
+  connect {
+    sidecar_service {
+      port = 20000
+      check {
+        name     = "Connect Envoy Sidecar"
+        tcp      = "127.0.0.1:20000"
+        interval = "10s"
+      }
+      proxy {
+        upstreams {
+          destination_name   = "api"
+          local_bind_address = "127.0.0.1"
+          local_bind_port    = 9091
+        }
+      }
+    }
+  }
 }
 EOF
 
 systemctl restart consul
+
+cat > /etc/systemd/system/consul-envoy.service <<- EOF
+
+[Unit]
+Description=Consul Envoy
+After=syslog.target network.target
+
+# Put web service token here for the -token option!
+[Service]
+ExecStart=/usr/bin/consul connect envoy -sidecar-for=web -token=web_service_token
+ExecStop=/bin/sleep 5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl start consul-envoy
 
 mkdir -p /etc/systemd/resolved.conf.d
 

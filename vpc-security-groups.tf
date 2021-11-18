@@ -209,6 +209,16 @@ resource "aws_security_group_rule" "consul_client_allow_9090" {
   description              = "Allow traffic from Consul Clients for Fake Service."
 }
 
+resource "aws_security_group_rule" "consul_client_allow_20000" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 20000
+  to_port                  = 20000
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow traffic from Consul Clients for Fake Service via Envoy Proxy."
+}
+
 resource "aws_security_group_rule" "consul_client_allow_22_bastion" {
   security_group_id        = aws_security_group.consul_client.id
   type                     = "ingress"
