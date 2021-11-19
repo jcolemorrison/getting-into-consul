@@ -142,7 +142,6 @@ EOF
 systemctl restart consul
 
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
-
 [Unit]
 Description=Consul Envoy
 After=syslog.target network.target

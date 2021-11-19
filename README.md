@@ -98,8 +98,6 @@ To set use this repo, take the following steps:
 	8. Click **Save**.
 	9. Repeat for all other tokens with the label like `Serivce Identity: ip-*-*-*-*`
 
-<!-- Need to create the consul intention -->
-
 12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
 	2. Head to **Intentions**.
