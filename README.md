@@ -12,8 +12,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 5 - All About Access Control Lists (ACLs)](https://github.com/jcolemorrison/getting-into-consul/tree/part-5)
 - [Part 6a - Configuring Consul with HCP Vault and Auto-Config](https://github.com/jcolemorrison/getting-into-consul/tree/part-6)
 - [Part 6b - Mostly Manual Configuration for Part-7 and beyond (use this)](https://github.com/jcolemorrison/getting-into-consul/tree/part-6-manual)
-- **[Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)**
-- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
+- [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
+- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
 
