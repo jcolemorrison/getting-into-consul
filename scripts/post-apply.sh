@@ -7,6 +7,7 @@
 export CONSUL_HTTP_ADDR=http://$(terraform output -raw consul_server)
 export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_token)
 export API_ASG_NAME=$(terraform output -raw asg_api_name)
+export API_V2_ASG_NAME=$(terraform output -raw asg_api_v2_name)
 export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
 export AWS_REGION=$(terraform output -raw aws_region)
 
@@ -25,6 +26,21 @@ do
 	hostname="ip-${node//./-}"
 	echo "client_api_node_id_token_$API_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" > tokens.txt
 	API_NODE=$((API_NODE++))
+done
+
+# Node Identity Tokens - API v2
+API_V2_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
+	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
+			--query "AutoScalingInstances[?AutoScalingGroupName=='$API_V2_ASG_NAME'].InstanceId") \
+--query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
+
+API_V2_NODE=0
+for node in $API_V2_INSTANCES
+do
+	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
+	hostname="ip-${node//./-}"
+	echo "client_api_v2_node_id_token_$API_V2_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	API_V2_NODE=$((API_V2_NODE++))
 done
 
 # Node Identity Tokens - WEB

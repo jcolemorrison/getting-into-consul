@@ -117,6 +117,25 @@ variable "client_api_max_count" {
   default     = 1
 }
 
+## Consul API v2 Clients
+variable "client_api_v2_desired_count" {
+  description = "The desired number of consul api v2 clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_api_v2_min_count" {
+  description = "The minimum number of consul api v2 clients."
+  type        = number
+  default     = 1
+}
+
+variable "client_api_v2_max_count" {
+  description = "The maximum number of consul api v2 clients."
+  type        = number
+  default     = 1
+}
+
 # Allowed Traffic into the Bastion
 variable "allowed_bastion_cidr_blocks" {
   description = "List of CIDR blocks allowed to access your Bastion.  Defaults to Everywhere."

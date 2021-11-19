@@ -142,3 +142,43 @@ resource "tls_locally_signed_cert" "client_api_signed_cert" {
 
 	validity_period_hours = 8760
 }
+
+# Client API v2 Certificates
+resource "tls_private_key" "client_api_v2_key" {
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256"
+}
+
+## Public Client Cert
+resource "tls_cert_request" "client_api_v2_cert" {
+	key_algorithm = tls_private_key.client_api_v2_key.algorithm
+	private_key_pem = tls_private_key.client_api_v2_key.private_key_pem
+
+	subject {
+		common_name = "client.dc1.consul" # dc1 is the default data center name we used
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"client.dc1.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Signed Public Client Certificate
+resource "tls_locally_signed_cert" "client_api_v2_signed_cert" {
+	cert_request_pem = tls_cert_request.client_api_v2_cert.cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}

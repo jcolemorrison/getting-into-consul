@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Hello Consul Client API!"
+echo "Hello Consul Client API v2!"
 
 # Install Consul.  This creates...
 # 1 - a default /etc/consul.d/consul.hcl
@@ -90,7 +90,7 @@ Description=API
 After=syslog.target network.target
 
 [Service]
-Environment="MESSAGE=api"
+Environment="MESSAGE=apiv2"
 Environment="NAME=api"
 ExecStart=/usr/local/bin/fake-service
 ExecStop=/bin/sleep 5
@@ -107,7 +107,7 @@ systemctl start api
 # Consul Config file for our fake API service
 cat > /etc/consul.d/api.hcl <<- EOF
 service {
-  id = "api-v1"
+  id = "api-v2"
   name = "api"
   port = 9090
   token = "" # put api service token here
@@ -141,7 +141,7 @@ After=syslog.target network.target
 
 # Put api service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=api -token=api_service_token
+ExecStart=/usr/bin/consul connect envoy -sidecar-for=api-v2 -token=api_service_token
 ExecStop=/bin/sleep 5
 Restart=always
 
