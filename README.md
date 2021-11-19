@@ -122,8 +122,9 @@ Although this repo is set up so that you can get everything working via `terrafo
 1. [From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)
 2. [From Part 2 to Part 3 Manual Steps](part-3-manual-steps.md)
 3. [From Part 3 to Part 4 Manual Steps](part-4-manual-steps.md)
-4. [From Part 4 to Part 5 Manual Steps](part-4-manual-steps.md)
+4. [From Part 4 to Part 5 Manual Steps](part-5-manual-steps.md)
 5. Follow the Steps on this README to get to Part 6
+4. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
