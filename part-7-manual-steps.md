@@ -101,7 +101,7 @@ _Note: If you're looking part-6 manual instructions, those are just the [README]
     }
   }
   ```
-  - you can reference the [client-api.sh script]().
+  - you can reference the [client-api.sh script](https://github.com/jcolemorrison/getting-into-consul/blob/part-7/scripts/client-api.sh#L121-L130).
 
 6. Create a new file at `/etc/systemd/system/consul-envoy.service` and input the following:
 
@@ -186,6 +186,7 @@ _Note: If you're looking part-6 manual instructions, those are just the [README]
     }
   }
   ```
+  - you can reference the [client-web.sh script](https://github.com/jcolemorrison/getting-into-consul/blob/part-7/scripts/client-web.sh#L122-L138).
 
 6. Open the `/etc/systemd/system/web.service` file and modify the `UPSTREAM_URIS` as follows:
 
