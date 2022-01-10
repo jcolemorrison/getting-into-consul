@@ -9,10 +9,10 @@ All of the below have been done to help consul differentiate between the `api-v1
 2. Follow the steps found in [Part 8 README's Getting Started](https://github.com/jcolemorrison/getting-into-consul/tree/part-8#getting-started) section to completion **up to step 15**.  This will put everything in place so that you can manually create the [Consul Configuration Entries](https://www.consul.io/docs/connect/config-entries).
 
 3. Take note of some changes:
-	- An [additional auto-scaling group](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/ec2-asg.tf#L159-L207) and [launch template](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/ec2-launch-templates.tf#L147-L189) have been to represent a `v2` of the `api`.
-	- An additional [`client-api-v2.sh`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh) script has been added to bootstrap the new servers.  It's largely identical to `client-api.sh`, with IDs and labels updated with a `v2` identifier where needed.
-	- In both the `client-api.sh` and `client-api-v2.sh` files, the `/etc/consul.d/api.hcl` the services have had their `ID` changed to either [`api-v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L110) or [`api-v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L110) respectively.  Also, the services have been given a `meta.version` block with a [`v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L122-L124) or [`v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L122-L124) value respectively.
-	- In both the `client-api.sh` and `client-api-v2.sh` files, the `/etc/systemd/system/consul-envoy.service` files have had their `-sidecar-for` flag updated with either [`api-v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L148) or [`api-v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L148) respectively.
+  - An [additional auto-scaling group](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/ec2-asg.tf#L159-L207) and [launch template](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/ec2-launch-templates.tf#L147-L189) have been to represent a `v2` of the `api`.
+  - An additional [`client-api-v2.sh`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh) script has been added to bootstrap the new servers.  It's largely identical to `client-api.sh`, with IDs and labels updated with a `v2` identifier where needed.
+  - In both the `client-api.sh` and `client-api-v2.sh` files, the `/etc/consul.d/api.hcl` the services have had their `ID` changed to either [`api-v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L110) or [`api-v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L110) respectively.  Also, the services have been given a `meta.version` block with a [`v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L122-L124) or [`v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L122-L124) value respectively.
+  - In both the `client-api.sh` and `client-api-v2.sh` files, the `/etc/systemd/system/consul-envoy.service` files have had their `-sidecar-for` flag updated with either [`api-v1`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api.sh#L148) or [`api-v2`](https://github.com/jcolemorrison/getting-into-consul/blob/part-8/scripts/client-api-v2.sh#L148) respectively.
 
 4. SSH into your Bastion Server and then into your `getting-into-consul-server`.  This is your beginning point.
 
@@ -23,42 +23,42 @@ A Consul [`service resolver`](https://www.consul.io/docs/connect/config-entries/
 1. Double check that you're on the `getting-into-consul-server`.
 
 2. Set your `CONSUL_HTTP_TOKEN` to the value of your `consul_token` in your Terraform output.  Since this was marked as a sensitive value, you'll have to open up your `terraform.tfstate` file and get it.
-	- this is so you can interact with Consul as the root and set the configuration entries.
+  - this is so you can interact with Consul as the root and set the configuration entries.
 
-	```sh
-	export CONSUL_HTTP_TOKEN=<consul_token>
-	```
+  ```sh
+  export CONSUL_HTTP_TOKEN=<consul_token>
+  ```
 
 3. Create a new file `service-resolver.hcl` and input the following contents:
 
-	```hcl
-	Kind          = "service-resolver"
-	Name          = "api"
-	DefaultSubset = "v1"
-	Subsets = {
-		v1 = {
-			Filter = "Service.Meta.version == v1"
-		}
-		v2 = {
-			Filter = "Service.Meta.version == v2"
-		}
-	}
-	```
-	
+  ```hcl
+  Kind          = "service-resolver"
+  Name          = "api"
+  DefaultSubset = "v1"
+  Subsets = {
+    v1 = {
+      Filter = "Service.Meta.version == v1"
+    }
+    v2 = {
+      Filter = "Service.Meta.version == v2"
+    }
+  }
+  ```
+  
 4. Apply the file via `consul`'s CLI:
 
-	```
-	consul config write service-resolver.hcl
-	```
+  ```
+  consul config write service-resolver.hcl
+  ```
 
 5. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
-	1. Login with your root token (the `consul_token` output, you can find it in your state file)
+  1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
 6. To verify that the Consul `service-resolver` has been created to differentiate between `api` and `api-v2`:
-	1. Head to **Services**.
-	2. Select the `api` service.
-	3. Click on the **Routing** tab.
-	4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
+  1. Head to **Services**.
+  2. Select the `api` service.
+  3. Click on the **Routing** tab.
+  4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
 
 ## 2 - Create the Consul `service-splitter`
 
@@ -68,36 +68,36 @@ This [`service splitter`](https://www.consul.io/docs/connect/config-entries/serv
 
 2. Create a new file `service-splitter.hcl` and input the following contents:
 
-	```hcl
-	Kind = "service-splitter"
-	Name = "api"
-	Splits = [
-		{
-			Weight        = 90
-			ServiceSubset = "v1"
-		},
-		{
-			Weight        = 10
-			ServiceSubset = "v2"
-		},
-	]
-	```
+  ```hcl
+  Kind = "service-splitter"
+  Name = "api"
+  Splits = [
+    {
+      Weight        = 90
+      ServiceSubset = "v1"
+    },
+    {
+      Weight        = 10
+      ServiceSubset = "v2"
+    },
+  ]
+  ```
 
 3. Apply the file via `consul`'s CLI:
 
-	```
-	consul config write service-splitter.hcl
-	```
+  ```
+  consul config write service-splitter.hcl
+  ```
 
 4. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
-	1. Login with your root token (the `consul_token` output, you can find it in your state file)
+  1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
 5. To verify that the Consul `service-resolver` has been created to differentiate between `api` and `api-v2`:
-	1. Head to **Services**.
-	2. Select the `api` service.
-	3. Click on the **Routing** tab.
-	4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
-	5. Hover over the connecting lines to see the traffic split percentages from the `service-splitter`.
+  1. Head to **Services**.
+  2. Select the `api` service.
+  3. Click on the **Routing** tab.
+  4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
+  5. Hover over the connecting lines to see the traffic split percentages from the `service-splitter`.
 
 ## 3 - Create the Consul `service-router`
 
@@ -107,47 +107,47 @@ The [`service router`](https://www.consul.io/docs/connect/config-entries/service
 
 2. Create a new file called `service-router.hcl` and input the following contents:
 
-	```hcl
-	Kind = "service-router"
-	Name = "api"
-	Routes = [
-		{
-			Match {
-				HTTP {
-					Header = [
-						{
-							Name  = "x-debug"
-							Exact = "1"
-						},
-					]
-				}
-			}
-			Destination {
-				Service       = "api"
-				ServiceSubset = "v2"
-			}
-		}
-	]
-	```
+  ```hcl
+  Kind = "service-router"
+  Name = "api"
+  Routes = [
+    {
+      Match {
+        HTTP {
+          Header = [
+            {
+              Name  = "x-debug"
+              Exact = "1"
+            },
+          ]
+        }
+      }
+      Destination {
+        Service       = "api"
+        ServiceSubset = "v2"
+      }
+    }
+  ]
+  ```
 
 3. Apply the file via `consul`'s CLI:
 
-	```
-	consul config write service-router.hcl
-	```
+  ```
+  consul config write service-router.hcl
+  ```
 
 4. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
-	1. Login with your root token (the `consul_token` output, you can find it in your state file)
+  1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
 5. To verify that the Consul `service-router` has been created to split the traffic:
-	1. Head to **Services**.
-	2. Select the `api` service.
-	3. Click on the **Routing** tab.
-	4. Confirm that an **API Router** box exists that sends any traffic with the `x-debug: 1` header to `v2`.
+  1. Head to **Services**.
+  2. Select the `api` service.
+  3. Click on the **Routing** tab.
+  4. Confirm that an **API Router** box exists that sends any traffic with the `x-debug: 1` header to `v2`.
 
 6. (Optional) SSH from your bastion into the `getting-into-consul-web` server.  Run the following command:
 
-	```
-	curl -H "X-Debug: 1" localhost:9091
-	```
-	- the `body` field should be `apiv2`
+  ```
+  curl -H "X-Debug: 1" localhost:9091
+  ```
+  - the `body` field should be `apiv2`
