@@ -25,31 +25,31 @@ A Consul [`service resolver`](https://www.consul.io/docs/connect/config-entries/
 2. Set your `CONSUL_HTTP_TOKEN` to the value of your `consul_token` in your Terraform output.  Since this was marked as a sensitive value, you'll have to open up your `terraform.tfstate` file and get it.
 	- this is so you can interact with Consul as the root and set the configuration entries.
 
-		```sh
-		export CONSUL_HTTP_TOKEN=<consul_token>
-		```
+	```sh
+	export CONSUL_HTTP_TOKEN=<consul_token>
+	```
 
 3. Create a new file `service-resolver.hcl` and input the following contents:
 
-		```hcl
-		Kind          = "service-resolver"
-		Name          = "api"
-		DefaultSubset = "v1"
-		Subsets = {
-			v1 = {
-				Filter = "Service.Meta.version == v1"
-			}
-			v2 = {
-				Filter = "Service.Meta.version == v2"
-			}
+	```hcl
+	Kind          = "service-resolver"
+	Name          = "api"
+	DefaultSubset = "v1"
+	Subsets = {
+		v1 = {
+			Filter = "Service.Meta.version == v1"
 		}
-		```
+		v2 = {
+			Filter = "Service.Meta.version == v2"
+		}
+	}
+	```
 	
 4. Apply the file via `consul`'s CLI:
 
-		```
-		consul config write service-resolver.hcl
-		```
+	```
+	consul config write service-resolver.hcl
+	```
 
 5. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
@@ -68,26 +68,26 @@ This [`service splitter`](https://www.consul.io/docs/connect/config-entries/serv
 
 2. Create a new file `service-splitter.hcl` and input the following contents:
 
-		```hcl
-		Kind = "service-splitter"
-		Name = "api"
-		Splits = [
-			{
-				Weight        = 90
-				ServiceSubset = "v1"
-			},
-			{
-				Weight        = 10
-				ServiceSubset = "v2"
-			},
-		]
-		```
+	```hcl
+	Kind = "service-splitter"
+	Name = "api"
+	Splits = [
+		{
+			Weight        = 90
+			ServiceSubset = "v1"
+		},
+		{
+			Weight        = 10
+			ServiceSubset = "v2"
+		},
+	]
+	```
 
 3. Apply the file via `consul`'s CLI:
 
-		```
-		consul config write service-splitter.hcl
-		```
+	```
+	consul config write service-splitter.hcl
+	```
 
 4. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
@@ -107,34 +107,34 @@ The [`service router`](https://www.consul.io/docs/connect/config-entries/service
 
 2. Create a new file called `service-router.hcl` and input the following contents:
 
-		```hcl
-		Kind = "service-router"
-		Name = "api"
-		Routes = [
-			{
-				Match {
-					HTTP {
-						Header = [
-							{
-								Name  = "x-debug"
-								Exact = "1"
-							},
-						]
-					}
-				}
-				Destination {
-					Service       = "api"
-					ServiceSubset = "v2"
+	```hcl
+	Kind = "service-router"
+	Name = "api"
+	Routes = [
+		{
+			Match {
+				HTTP {
+					Header = [
+						{
+							Name  = "x-debug"
+							Exact = "1"
+						},
+					]
 				}
 			}
-		]
-		```
+			Destination {
+				Service       = "api"
+				ServiceSubset = "v2"
+			}
+		}
+	]
+	```
 
 3. Apply the file via `consul`'s CLI:
 
-		```
-		consul config write service-router.hcl
-		```
+	```
+	consul config write service-router.hcl
+	```
 
 4. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
