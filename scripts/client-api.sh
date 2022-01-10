@@ -119,6 +119,10 @@ service {
     interval = "30s"
   }
 
+  meta {
+    version = "v1"
+  }
+
   connect {
     sidecar_service {
       port = 20000
@@ -141,7 +145,7 @@ After=syslog.target network.target
 
 # Put api service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=api -token=api_service_token
+ExecStart=/usr/bin/consul connect envoy -sidecar-for=api-v1 -token=api_service_token
 ExecStop=/bin/sleep 5
 Restart=always
 

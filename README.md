@@ -13,6 +13,7 @@ This repo is split into branches, each representing a part in the series:
 - [Part 6a - Configuring Consul with HCP Vault and Auto-Config](https://github.com/jcolemorrison/getting-into-consul/tree/part-6)
 - [Part 6b - Mostly Manual Configuration for Part-7 and beyond (use this)](https://github.com/jcolemorrison/getting-into-consul/tree/part-6-manual)
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
+- [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
 - **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
@@ -75,7 +76,19 @@ To set use this repo, take the following steps:
 		sudo systemctl restart consul-envoy
 		```
 
-10. SSH into your Bastion and then into your `getting-into-consul-web` nodes...
+10. SSH into your Bastion and then into your `getting-into-consul-api-v2` nodes...
+	1. Add the `client_api_v2_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
+	2. Add the `client_api_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
+	3. Add the `client_api_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
+	4. Restart both `consul` and the `api` service:
+		```sh
+		sudo systemctl restart consul
+		sudo systemctl restart api
+		sudo systemctl daemon-reload
+		sudo systemctl restart consul-envoy
+		```
+
+11. SSH into your Bastion and then into your `getting-into-consul-web` nodes...
 	1. Add the `client_web_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
 	2. Add the `client_web_service_token` from `tokens.txt` to the `/etc/consul.d/web.hcl` file in the service.token block.
 	3. Add the `client_web_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
@@ -87,7 +100,7 @@ To set use this repo, take the following steps:
 		sudo systemctl restart consul-envoy
 		```
 
-11. (Optional) Create the `allow-dns` policy and attach it to the Node Identity tokens for the `api` and `web` nodes:
+12. (Optional) Create the `allow-dns` policy and attach it to the Node Identity tokens for the `api` and `web` nodes:
 	0. (These steps are optional because the rules in the allow-dns policy are now included in the default ACL attached to the node identity token)
 	1. Access the consul console by heading to your application load balancer's DNS printed in the terraform outputs as `consul_server`
 	2. Go to **Policies** and click **Create**.
@@ -99,21 +112,32 @@ To set use this repo, take the following steps:
 	8. Click **Save**.
 	9. Repeat for all other tokens with the label like `Serivce Identity: ip-*-*-*-*`
 
-12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
+13. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
-	2. Head to **Intentions**.
-	3. Click **Create**.
-	4. For **Source**, select `web`.
-	5. For **Destination**, select `api`.
-	6. For source connection to destination, select `Allow`.
-	7. Click **Save**.
 
-13. To verify everything is working, check out your Consul UI...
+14. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+15. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
 	- It shouldn't have any errors
+
+16. To verify that the Consul `service-intention` has been created to allow traffic from `api` to `web`:
+	1. Head to **Intentions**.
+	2. Verify that an intention exists allowing `web` as the source from the destination of `api`.
+
+17. To verify that the Consul `service-resolver` and `service-splitter` have been created to differentiate between `api` and `api-v2`:
+	1. Head to **Services**.
+	2. Select the `api` service.
+	3. Click on the **Routing** tab.
+	4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
+	5. Hover over the connecting lines to see the traffic split percentages from the `service-splitter`.
+
+18. To verify that the Consul `service-router` has been created to split the traffic:
+	1. Head to **Services**.
+	2. Select the `api` service.
+	3. Click on the **Routing** tab.
+	4. Confirm that an **API Router** box exists that sends any traffic with the `x-debug: 1` header to `v2`.
 
 ### Setting Things Up Manually
 
@@ -124,7 +148,8 @@ Although this repo is set up so that you can get everything working via `terrafo
 3. [From Part 3 to Part 4 Manual Steps](part-4-manual-steps.md)
 4. [From Part 4 to Part 5 Manual Steps](part-5-manual-steps.md)
 5. Follow the Steps on this README to get to Part 6
-4. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
+6. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
+7. [From Part 7 to Part 8 Manual Steps](part-8-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 

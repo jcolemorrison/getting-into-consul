@@ -119,6 +119,10 @@ service {
     interval = "30s"
   }
 
+  meta {
+    version = "v2"
+  }
+
   connect {
     sidecar_service {
       port = 20000

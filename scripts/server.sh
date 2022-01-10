@@ -89,6 +89,65 @@ config_entries {
       config {
         protocol                   = "http"
       }
+    },
+    {
+      Kind = "service-intentions"
+      Name = "api"
+      Sources = [
+        {
+          Name = "web"
+          Action = "allow"
+        }
+      ]
+    },
+    {
+      Kind = "service-resolver"
+      Name = "api"
+      DefaultSubset = "v1"
+      Subsets = {
+        v1 = {
+          Filter = "Service.Meta.version == v1"
+        }
+        v2 = {
+          Filter = "Service.Meta.version == v2"
+        }
+      }
+    },
+    {
+      Kind = "service-splitter"
+      Name = "api"
+      Splits = [
+        {
+          Weight        = 90
+          ServiceSubset = "v1"
+        },
+        {
+          Weight        = 10
+          ServiceSubset = "v2"
+        },
+      ]
+    },
+    {
+      Kind = "service-router"
+      Name = "api"
+      Routes = [
+        {
+          Match {
+            HTTP {
+              Header = [
+                {
+                  Name  = "x-debug"
+                  Exact = "1"
+                },
+              ]
+            }
+          }
+          Destination {
+            Service       = "api"
+            ServiceSubset = "v2"
+          }
+        }
+      ]
     }
   ]
 }
