@@ -238,3 +238,24 @@ resource "aws_security_group_rule" "consul_client_allow_outbound" {
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow any outbound traffic."
 }
+
+## Metrics SG
+resource "aws_security_group" "metrics" {
+  name_prefix = "${var.main_project_tag}-metrics-sg"
+  description = "Firewall for the metrics instance"
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-metrics-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "metrics_allow_22" {
+  security_group_id = aws_security_group.metrics.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description       = "Allow SSH traffic from consul bastion."
+}
