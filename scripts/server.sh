@@ -80,7 +80,7 @@ connect {
 }
 
 # these are the default settings used for the proxies
-# the equivalent for services is `service-defaults` in the `kind` argument
+# the equivalent for services is "service-defaults" in the "kind" argument
 config_entries {
   bootstrap = [
     {
