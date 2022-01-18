@@ -107,6 +107,16 @@ resource "aws_security_group_rule" "consul_server_allow_client_8500" {
   description              = "Allow HTTP traffic from Consul Client."
 }
 
+resource "aws_security_group_rule" "consul_server_allow_metrics_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.metrics.id
+  description              = "Allow HTTP traffic from Metrics Client."
+}
+
 resource "aws_security_group_rule" "consul_server_allow_client_8301" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"
@@ -209,6 +219,16 @@ resource "aws_security_group_rule" "consul_client_allow_9090" {
   description              = "Allow traffic from Consul Clients for Fake Service."
 }
 
+resource "aws_security_group_rule" "consul_client_allow_9102" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9102
+  to_port                  = 9102
+  source_security_group_id = aws_security_group.metrics.id
+  description              = "Allow traffic from Metrics Clients for Prometheus."
+}
+
 resource "aws_security_group_rule" "consul_client_allow_20000" {
   security_group_id        = aws_security_group.consul_client.id
   type                     = "ingress"
@@ -258,4 +278,24 @@ resource "aws_security_group_rule" "metrics_allow_22" {
   to_port           = 22
   source_security_group_id = aws_security_group.bastion.id
   description       = "Allow SSH traffic from consul bastion."
+}
+
+resource "aws_security_group_rule" "metrics_allow_lb_9090" {
+  security_group_id        = aws_security_group.metrics.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9090
+  to_port                  = 9090
+  source_security_group_id = aws_security_group.load_balancer.id
+  description              = "Allow traffic from Load Balancer to Metrics Clients for Prometheus."
+}
+
+resource "aws_security_group_rule" "metrics_allow_outbound" {
+  security_group_id = aws_security_group.metrics.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
 }
