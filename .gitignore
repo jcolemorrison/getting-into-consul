@@ -9,3 +9,8 @@ notes.md
 peers.json
 tokens.auto.tfvars
 tokens.txt
+metrics_module/.terraform
+metrics_module/terraform.tfvars
+metrics_module/terraform.tfstate
+metrics_module/terraform.tfstate.backup
+metrics_module/.terraform.lock.hcl

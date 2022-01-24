@@ -71,3 +71,26 @@ echo "5. Add the 'consul_web_service_token' to the web.hcl file on your Consul C
 echo "6. Restart consul and the web service on the Consul Client WEB nodes."
 echo "7. For both global node-identity tokens, create and attach the policy shown in policies/allow-dns.hcl."
 echo "For more details, checkout the README.md"
+
+# Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
+# of consul servers until the root module is completely deployed.
+export MAIN_TAG=$(terraform output -raw main_project_tag)
+export VPC_ID=$(terraform output -raw vpc_id)
+export VPC_PRIVATE_SUBNET_IDS=$(terraform output -json vpc_private_subnet_ids)
+export VPC_PUBLIC_SUBNET_IDS=$(terraform output -json vpc_public_subnet_ids)
+export EC2_KEY_PAIR_NAME=$(terraform output -raw ec2_key_pair_name)
+export BASTION_SECURITY_GROUP_ID=$(terraform output -raw bastion_security_group_id)
+export CONSUL_SERVER_SECURITY_GROUP_ID=$(terraform output -raw consul_server_security_group_id)
+export CONSUL_CLIENT_SECURITY_GROUP_ID=$(terraform output -raw consul_client_security_group_id)
+
+# Append Terraform Variables for the Metrics Module
+cat > `pwd -P`/metrics_module/terraform.tfvars <<- EOF
+main_project_tag = ${MAIN_TAG}
+vpc_id = ${VPC_ID}
+vpc_private_subnet_ids = ${VPC_PRIVATE_SUBNET_IDS}
+vpc_public_subnet_ids = ${VPC_PUBLIC_SUBNET_IDS}
+ec2_key_pair_name = ${EC2_KEY_PAIR_NAME}
+bastion_security_group_id = ${BASTION_SECURITY_GROUP_ID}
+consul_server_security_group_id = ${CONSUL_SERVER_SECURITY_GROUP_ID}
+consul_client_security_group_id = ${CONSUL_CLIENT_SECURITY_GROUP_ID}
+EOF
