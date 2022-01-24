@@ -92,3 +92,15 @@ variable "allowed_traffic_cidr_blocks_ipv6" {
   type        = list(string)
   default     = ["::/0"]
 }
+
+# Consul Server Values
+variable "consul_server_ip" {
+  type = string
+  description = "consul server IP."
+}
+
+variable "consul_token" {
+  type = string
+  description = "ACL token for the consul server."
+  sensitive = true
+}
