@@ -8,6 +8,8 @@ tar -xvf prometheus-${VERSION}.linux-amd64.tar.gz
 mv prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz/prometheus /usr/bin/prometheus
 chmod +x /usr/bin/prometheus
 
+mkdir -p /etc/prometheus
+
 # Create Prometheus Config File
 cat > /etc/prometheus/prometheus.yaml <<- EOF
 # my global config
@@ -54,3 +56,21 @@ scrape_configs:
         target_label: '__address__'
         action: 'replace'
 EOF
+
+cat > /etc/systemd/system/prometheus.service <<- EOF
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+ConditionFileNotEmpty=/etc/prometheus/prometheus.yaml
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/prometheus --config.file /etc/prometheus/prometheus.yaml
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl start prometheus
