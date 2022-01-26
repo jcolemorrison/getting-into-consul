@@ -129,7 +129,8 @@ echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'sy
 echo ""
 echo "(Optional) Part 4 - Deploying the Prometheus Metrics Server..."
 echo "1. 'cd' into the nested 'metrics_module' directory."
-echo "2. Run 'terraform apply'."
+echo "2. Run 'terraform init'."
+echo "3. Run 'terraform apply'."
 
 echo ""
 echo "Visit your Consul Server at ${CONSUL_HTTP_ADDR}."

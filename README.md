@@ -14,11 +14,12 @@ This repo is split into branches, each representing a part in the series:
 - [Part 6b - Mostly Manual Configuration for Part-7 and beyond (use this)](https://github.com/jcolemorrison/getting-into-consul/tree/part-6-manual)
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
 - [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
-- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
+- **[Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)**
+- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
 ## The Architecture So Far:
 
-![Getting into Consul Infrastructure](docs/getting-into-consul-part-3.png)
+![Getting into Consul Infrastructure](docs/getting-into-consul-part-9.png)
 
 ## Getting Started
 
@@ -60,7 +61,13 @@ To set use this repo, take the following steps:
 8. After the apply is complete, run the post apply script:
 
 	```sh
-	# this will output sensitive values needed in a local file 'tokens.txt'
+	# this will output two things:
+
+	# 1. Sensitive values needed in a local file 'tokens.txt'
+
+	# 2. Values required by the metrics_module
+
+	# 3. Detailed setup instructions which are also listed below
 	bash scripts/post-apply.sh
 	```
 
@@ -100,44 +107,59 @@ To set use this repo, take the following steps:
 		sudo systemctl restart consul-envoy
 		```
 
-12. (Optional) Create the `allow-dns` policy and attach it to the Node Identity tokens for the `api` and `web` nodes:
-	0. (These steps are optional because the rules in the allow-dns policy are now included in the default ACL attached to the node identity token)
-	1. Access the consul console by heading to your application load balancer's DNS printed in the terraform outputs as `consul_server`
-	2. Go to **Policies** and click **Create**.
-	3. For **Name** enter "allow-dns" and paste the contents of `./policies/allow-dns.hcl` into the **Rules** field.
-	4. Click **Save**.
-	5. Click on **Tokens**.
-	6. For each token with the label like `Serivce Identity: ip-*-*-*-*`, click into it.
-	7. Click the dropdown under **Policies** and select our `allow-dns` policy we created.
-	8. Click **Save**.
-	9. Repeat for all other tokens with the label like `Serivce Identity: ip-*-*-*-*`
-
-13. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
+12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
-14. To verify everything is working, check out your Consul UI...
+13. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-15. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
 	- It shouldn't have any errors
 
-16. To verify that the Consul `service-intention` has been created to allow traffic from `api` to `web`:
+15. To verify that the Consul `service-intention` has been created to allow traffic from `api` to `web`:
 	1. Head to **Intentions**.
 	2. Verify that an intention exists allowing `web` as the source from the destination of `api`.
 
-17. To verify that the Consul `service-resolver` and `service-splitter` have been created to differentiate between `api` and `api-v2`:
+16. To verify that the Consul `service-resolver` and `service-splitter` have been created to differentiate between `api` and `api-v2`:
 	1. Head to **Services**.
 	2. Select the `api` service.
 	3. Click on the **Routing** tab.
 	4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
 	5. Hover over the connecting lines to see the traffic split percentages from the `service-splitter`.
 
-18. To verify that the Consul `service-router` has been created to split the traffic:
+17. To verify that the Consul `service-router` has been created to split the traffic:
 	1. Head to **Services**.
 	2. Select the `api` service.
 	3. Click on the **Routing** tab.
 	4. Confirm that an **API Router** box exists that sends any traffic with the `x-debug: 1` header to `v2`.
+
+### Deploy the Optional Metrics Server
+
+There's also another module nested in this repository that will stand up a [prometheus](https://prometheus.io/) deployment to monitor your Consul cluster.  To deploy it.
+
+1. Ensure that the above "Getting Started" instructions have been followed. 
+	- including running the `post-apply.sh` script that creates needed variables for the metrics deployment.
+
+2. Navigate to the nested `metrics_module`.
+
+	```
+	cd metrics_module/
+	```
+
+3. Initialize the nested Terraform Module:
+
+	```
+	terraform init
+	```
+
+4. Deploy it:
+
+	```
+	terraform apply
+	```
+
+5. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
 
 ### Setting Things Up Manually
 
@@ -155,6 +177,12 @@ Although this repo is set up so that you can get everything working via `terrafo
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
-### Notes
+## Troubleshooting
+
+#### `502 Bad Gateway Error` when visiting the Consul Server UI
+
+The most likely cause of this is a failure to fetch and install consul on the servers due to a failure to get the required GPG key.  The most straightforward way to fix this is to `terraform destroy` the infrastructure and reapply it via `terraform apply`.
+
+## Notes
 
 - [Cloud Auto-Join](https://www.consul.io/docs/install/cloud-auto-join) is set up for part 1, despite not being in the stream itself.
