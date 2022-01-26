@@ -14,8 +14,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 6b - Mostly Manual Configuration for Part-7 and beyond (use this)](https://github.com/jcolemorrison/getting-into-consul/tree/part-6-manual)
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
 - [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
-- **[Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)**
-- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
+- [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
+- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
 
@@ -173,7 +173,7 @@ Although this repo is set up so that you can get everything working via `terrafo
 6. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
 7. [From Part 7 to Part 8 Manual Steps](part-8-manual-steps.md)
 7. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
-	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1) to follow these.
+	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-9-manual) to follow these.
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
