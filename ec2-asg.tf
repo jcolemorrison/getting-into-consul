@@ -49,6 +49,9 @@ resource "aws_autoscaling_group" "consul_server" {
       propagate_at_launch = true
     }
   ]
+
+  # Allow time for internet access before installing external packages
+  depends_on = [aws_nat_gateway.nat]
 }
 
 # ASG for the Consul Web Clients
@@ -102,6 +105,9 @@ resource "aws_autoscaling_group" "consul_client_web" {
       propagate_at_launch = true
     }
   ]
+
+  # Allow time for internet access before installing external packages
+  depends_on = [aws_nat_gateway.nat]
 }
 
 # ASG for the Consul API Clients
@@ -153,6 +159,9 @@ resource "aws_autoscaling_group" "consul_client_api" {
       propagate_at_launch = true
     }
   ]
+
+  # Allow time for internet access before installing external packages
+  depends_on = [aws_nat_gateway.nat]
 }
 
 # ASG for the Consul API v2 Clients
@@ -204,4 +213,7 @@ resource "aws_autoscaling_group" "consul_client_api_v2" {
       propagate_at_launch = true
     }
   ]
+
+  # Allow time for internet access before installing external packages
+  depends_on = [aws_nat_gateway.nat]
 }

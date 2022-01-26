@@ -10,8 +10,11 @@ export API_ASG_NAME=$(terraform output -raw asg_api_name)
 export API_V2_ASG_NAME=$(terraform output -raw asg_api_v2_name)
 export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
 export AWS_REGION=$(terraform output -raw aws_region)
+export BASTION_IP=$(terraform output -raw bastion_ip)
+export WEB_HTTP_ADDR=http://$(terraform output -raw web_server)
 
-echo "Creating tokens..."
+echo ""
+echo "Creating ACL tokens and setting up values for the optional Metrics deployment..."
 
 # Node Identity Tokens - API
 API_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
@@ -62,16 +65,6 @@ done
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
-echo "Created!  To complete setup reference the tokens in tokens.txt..."
-echo "1. Add the 'consul_api_node_id_token' to the consul.hcl file on your Consul Client API nodes under the acl.tokens block."
-echo "2. Add the 'consul_api_service_token' to the api.hcl file on your Consul Client API nodes under the service.token block."
-echo "3. Restart consul and the api service on the Consul Client API nodes."
-echo "4. Add the 'consul_web_node_id_token' to the consul.hcl file on your Consul Client WEB nodes under the acl.tokens block."
-echo "5. Add the 'consul_web_service_token' to the web.hcl file on your Consul Client WEB nodes under the service.token block."
-echo "6. Restart consul and the web service on the Consul Client WEB nodes."
-echo "7. For both global node-identity tokens, create and attach the policy shown in policies/allow-dns.hcl."
-echo "For more details, checkout the README.md"
-
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
 # of consul servers until the root module is completely deployed.
 export MAIN_TAG=$(terraform output -raw main_project_tag)
@@ -105,3 +98,44 @@ consul_client_security_group_id = "${CONSUL_CLIENT_SECURITY_GROUP_ID}"
 consul_server_ip = "${SERVER_INSTANCE_IP}"
 consul_token = "${CONSUL_TOKEN}"
 EOF
+
+echo ""
+echo "To complete setup reference the tokens in tokens.txt.  The tokens are the ACLs that will be used to set up the various Consul Clients."
+
+echo ""
+echo "Part 1 - API Instances..."
+echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-api server at ${API_INSTANCES}."
+echo "2. Add the 'consul_api_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "3. Add the 'consul_api_service_token' to the '/etc/consul.d/api.hcl' file under the service.token block."
+echo "4. Add the 'consul_api_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
+echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart api'; 'systemctl restart consul-envoy';"
+
+echo ""
+echo "Part 2 - API v2 Instances..."
+echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-api-v2 server at ${API_V2_INSTANCES}."
+echo "2. Add the 'client_api_v2_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "3. Add the 'consul_api_service_token' to the '/etc/consul.d/api.hcl' file under the service.token block."
+echo "4. Add the 'consul_api_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
+echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart api'; 'systemctl restart consul-envoy';"
+
+echo ""
+echo "Part 3 - Web Instances..."
+echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-web server at ${WEB_INSTANCES}."
+echo "2. Add the 'client_web_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "3. Add the 'consul_web_service_token' to the '/etc/consul.d/web.hcl' file under the service.token block."
+echo "4. Add the 'consul_web_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
+echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart web'; 'systemctl restart consul-envoy';"
+
+echo ""
+echo "(Optional) Part 4 - Deploying the Prometheus Metrics Server..."
+echo "1. 'cd' into the nested 'metrics_module' directory."
+echo "2. Run 'terraform apply'."
+
+echo ""
+echo "Visit your Consul Server at ${CONSUL_HTTP_ADDR}."
+echo "Visit your Web Server at ${WEB_HTTP_ADDR}."
+echo "For the Metrics Server, after running 'terraform apply' in the 'metrics_module' visit the 'metrics_endpoint'."
+
+echo ""
+echo "For more details, checkout the README.md"
+echo ""

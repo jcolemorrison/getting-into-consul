@@ -1,11 +1,9 @@
 #!/bin/bash
 
-PROMETHEUS_VERSION="2.32.1"
-
 # Install Prometheus
 curl -fsSL -o prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz  https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
-tar -xvf prometheus-${VERSION}.linux-amd64.tar.gz
-mv prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz/prometheus /usr/bin/prometheus
+tar -xvf prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
+mv prometheus-${PROMETHEUS_VERSION}.linux-amd64/prometheus /usr/bin/prometheus
 chmod +x /usr/bin/prometheus
 
 mkdir -p /etc/prometheus
@@ -52,7 +50,7 @@ scrape_configs:
     relabel_configs:
       - source_labels: [__meta_consul_address]
         regex: '(.*)'
-        replacement: '${1}:9102'
+        replacement: '\$${1}:9102'
         target_label: '__address__'
         action: 'replace'
 EOF

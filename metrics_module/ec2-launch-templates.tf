@@ -30,6 +30,7 @@ resource "aws_launch_template" "metrics" {
 
   user_data = base64encode(templatefile("${path.module}/scripts/metrics.sh", {
     CONSUL_SERVER_IP = var.consul_server_ip
-    CONSUL_TOKEN = var.consul_token
+    CONSUL_ACL_TOKEN = var.consul_token
+    PROMETHEUS_VERSION = "2.32.1"
   }))
 }
