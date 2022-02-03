@@ -136,6 +136,25 @@ variable "client_api_v2_max_count" {
   default     = 1
 }
 
+## Consul Ingress Gateway Instances
+variable "ingress_gateway_desired_count" {
+  description = "The desired number of ingress gateway clients."
+  type        = number
+  default     = 1
+}
+
+variable "ingress_gateway_min_count" {
+  description = "The minimum number of ingress gateway clients."
+  type        = number
+  default     = 1
+}
+
+variable "ingress_gateway_max_count" {
+  description = "The maximum number of ingress gateway clients."
+  type        = number
+  default     = 1
+}
+
 ## Consul Metrics Clients
 variable "client_metrics_desired_count" {
   description = "The desired number of consul metrics clients."

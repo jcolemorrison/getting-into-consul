@@ -187,3 +187,44 @@ resource "aws_launch_template" "consul_client_api_v2" {
     CLIENT_PRIVATE_KEY = tls_private_key.client_api_v2_key.private_key_pem
   }))
 }
+
+# Ingress Gateway Launch Template
+resource "aws_launch_template" "ingress_gateway" {
+  name_prefix            = "${var.main_project_tag}-ingress-lt-"
+  image_id               = var.use_latest_ami ? data.aws_ssm_parameter.ubuntu_1804_ami_id.value : var.ami_id
+  instance_type          = "t3.micro"
+  key_name               = var.ec2_key_pair_name
+  vpc_security_group_ids = [aws_security_group.ingress_gateway.id]
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = merge(
+      { "Name" = "${var.main_project_tag}-ingress-gateway" },
+      { "Project" = var.main_project_tag }
+    )
+  }
+
+  tag_specifications {
+    resource_type = "volume"
+
+    tags = merge(
+      { "Name" = "${var.main_project_tag}-ingress-gateway-volume" },
+      { "Project" = var.main_project_tag }
+    )
+  }
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-ingress-gateway-lt" },
+    { "Project" = var.main_project_tag }
+  )
+
+  user_data = base64encode(templatefile("${path.module}/scripts/ingress-gateway.sh", {
+    PROJECT_TAG   = "Project"
+    PROJECT_VALUE = var.main_project_tag
+    GOSSIP_KEY = random_id.gossip_key.b64_std
+    CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
+    CLIENT_PUBLIC_KEY = tls_locally_signed_cert.ingress_gateway_signed_cert.cert_pem
+    CLIENT_PRIVATE_KEY = tls_private_key.ingress_gateway_key.private_key_pem
+  }))
+}

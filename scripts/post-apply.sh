@@ -9,6 +9,7 @@ export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_token)
 export API_ASG_NAME=$(terraform output -raw asg_api_name)
 export API_V2_ASG_NAME=$(terraform output -raw asg_api_v2_name)
 export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
+export IG_ASG_NAME=$(terraform output -raw asg_ig_name)
 export AWS_REGION=$(terraform output -raw aws_region)
 export BASTION_IP=$(terraform output -raw bastion_ip)
 export WEB_HTTP_ADDR=http://$(terraform output -raw web_server)
@@ -61,9 +62,25 @@ do
 	WEB_NODE=$((WEB_NODE++))
 done
 
+# Node Identity Tokens - Ingress Gateways
+IG_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
+	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
+			--query "AutoScalingInstances[?AutoScalingGroupName=='$IG_ASG_NAME'].InstanceId") \
+--query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
+
+IG_NODE=0
+for node in $IG_INSTANCES
+do
+	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
+	hostname="ip-${node//./-}"
+	echo "client_ig_node_id_token_$IG_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	WEB_NODE=$((IG_NODE++))
+done
+
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "client_ig_service_token = \"$(consul acl token create -service-identity="ig:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
 # of consul servers until the root module is completely deployed.

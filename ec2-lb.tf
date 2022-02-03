@@ -105,3 +105,57 @@ resource "aws_lb_listener" "alb_http_web" {
     target_group_arn = aws_lb_target_group.alb_targets_web.arn
   }
 }
+
+## Application Load Balancer - Ingress Gateway
+resource "aws_lb" "alb_ingress_gateway" {
+  name_prefix        = "csuli-" # 6 character length
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ingress_gateway_load_balancer.id]
+  subnets            = aws_subnet.public.*.id
+  idle_timeout       = 60
+  ip_address_type    = "dualstack"
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-alb-ig" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+## Target Group
+resource "aws_lb_target_group" "alb_targets_ingress_gateway" {
+  name_prefix          = "csuli-"
+  port                 = 9090
+  protocol             = "HTTP"
+  vpc_id               = aws_vpc.consul.id
+  deregistration_delay = 30
+  target_type          = "instance"
+
+  # https://www.consul.io/api-docs/health
+  health_check {
+    enabled             = true
+    interval            = 10
+    path                = "/health" // the consul API health port?
+    protocol            = "HTTP"    // switch to HTTPS?
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200"
+  }
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-tg-ig" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+## Default HTTP listener
+resource "aws_lb_listener" "alb_http_ig" {
+  load_balancer_arn = aws_lb.alb_ingress_gateway.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.alb_targets_ingress_gateway.arn
+  }
+}

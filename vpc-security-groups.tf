@@ -239,3 +239,78 @@ resource "aws_security_group_rule" "consul_client_allow_outbound" {
   description       = "Allow any outbound traffic."
 }
 
+## Ingress Gateway SG
+
+resource "aws_security_group" "ingress_gateway" {
+  name_prefix = "${var.main_project_tag}-ingress-gateway-sg"
+  description = "Firewall for the ingress gateway instances."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-ingress-gateway-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "ingress_gateway_allow_22_bastion" {
+  security_group_id        = aws_security_group.ingress_gateway.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description              = "Allow SSH traffic from consul bastion."
+}
+
+resource "aws_security_group_rule" "ingress_gateway_allow_outbound" {
+  security_group_id = aws_security_group.ingress_gateway.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
+}
+
+## Ingress Gateway Load Balancer SG
+resource "aws_security_group" "ingress_gateway_load_balancer" {
+  name_prefix = "${var.main_project_tag}-ig-alb-sg"
+  description = "Firewall for the application load balancer fronting the ingress gateway."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-ig-alb-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "ingress_gateway_load_balancer_allow_80" {
+  security_group_id = aws_security_group.ingress_gateway_load_balancer.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_blocks       = var.allowed_traffic_cidr_blocks
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
+  description       = "Allow HTTP traffic."
+}
+
+resource "aws_security_group_rule" "ingress_gateway_load_balancer_allow_443" {
+  security_group_id = aws_security_group.ingress_gateway_load_balancer.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_blocks       = var.allowed_traffic_cidr_blocks
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? var.allowed_traffic_cidr_blocks_ipv6 : null
+  description       = "Allow HTTPS traffic."
+}
+
+resource "aws_security_group_rule" "ingress_gateway_load_balancer_allow_outbound" {
+  security_group_id = aws_security_group.ingress_gateway_load_balancer.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
+  description       = "Allow any outbound traffic."
+}

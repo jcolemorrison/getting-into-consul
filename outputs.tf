@@ -39,6 +39,11 @@ output "asg_web_name" {
 	description = "Name of the Web AutoScaling Group"
 }
 
+output "asg_ig_name" {
+	value = aws_autoscaling_group.ingress_gateway.name
+	description = "Name of the Ingress Gateway AutoScaling Group"
+}
+
 output "aws_region" {
 	value = var.aws_default_region
 	description = "Region in AWS everything is deployed to"
