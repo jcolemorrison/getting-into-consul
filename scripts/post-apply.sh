@@ -10,6 +10,7 @@ export API_ASG_NAME=$(terraform output -raw asg_api_name)
 export API_V2_ASG_NAME=$(terraform output -raw asg_api_v2_name)
 export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
 export IG_ASG_NAME=$(terraform output -raw asg_ig_name)
+export TM_ASG_NAME=$(terraform output -raw asg_tm_name)
 export AWS_REGION=$(terraform output -raw aws_region)
 export BASTION_IP=$(terraform output -raw bastion_ip)
 export WEB_HTTP_ADDR=http://$(terraform output -raw web_server)
@@ -74,13 +75,29 @@ do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
 	echo "client_ig_node_id_token_$IG_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-	WEB_NODE=$((IG_NODE++))
+	IG_NODE=$((IG_NODE++))
+done
+
+# Node Identity Tokens - Terminating Gateways
+TM_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
+	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
+			--query "AutoScalingInstances[?AutoScalingGroupName=='$TM_ASG_NAME'].InstanceId") \
+--query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
+
+TM_NODE=0
+for node in $TM_INSTANCES
+do
+	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
+	hostname="ip-${node//./-}"
+	echo "client_ig_node_id_token_$TM_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	TM_NODE=$((TM_NODE++))
 done
 
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_ig_service_token = \"$(consul acl token create -service-identity="ig:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "client_tm_service_token = \"$(consul acl token create -service-identity="tm:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
 # of consul servers until the root module is completely deployed.
