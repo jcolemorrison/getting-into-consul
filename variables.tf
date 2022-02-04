@@ -42,6 +42,43 @@ variable "vpc_private_subnet_count" {
   default     = 2
 }
 
+# VPC DB Variables
+variable "vpc_db_cidr" {
+  description = "Cidr block for the DB VPC.  Using a /16 or /20 Subnet Mask is recommended."
+  type        = string
+  default     = "10.254.0.0/20"
+}
+
+variable "vpc_db_instance_tenancy" {
+  description = "Tenancy for instances launched into the DB VPC."
+  type        = string
+  default     = "default"
+}
+
+variable "vpc_db_tags" {
+  description = "Additional tags to add to the DB VPC and its resources."
+  type        = map(string)
+  default     = {}
+}
+
+variable "vpc_db_public_subnet_count" {
+  description = "The number of public subnets to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
+  type        = number
+  default     = 2
+}
+
+variable "vpc_db_private_subnet_count" {
+  description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
+  type        = number
+  default     = 2
+}
+
+variable "vpc_db_private_subnet_count" {
+  description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
+  type        = number
+  default     = 2
+}
+
 # EC2 Variables
 variable "ami_id" {
   description = "AMI ID to be used on all AWS EC2 Instances."

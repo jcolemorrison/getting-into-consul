@@ -262,3 +262,43 @@ resource "tls_locally_signed_cert" "terminating_gateway_signed_cert" {
 
 	validity_period_hours = 8760
 }
+
+# Database Gateway Certificates
+resource "tls_private_key" "database_key" {
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256"
+}
+
+## Database Gateway Public Client Cert
+resource "tls_cert_request" "database_cert" {
+	key_algorithm = tls_private_key.database_key.algorithm
+	private_key_pem = tls_private_key.database_key.private_key_pem
+
+	subject {
+		common_name = "database.dc1.consul" # dc1 is the default data center name we used
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"database.dc1.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Database Gateway Signed Public Client Certificate
+resource "tls_locally_signed_cert" "database_signed_cert" {
+	cert_request_pem = tls_cert_request.database_cert.cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}

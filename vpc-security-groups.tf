@@ -388,3 +388,74 @@ resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_outb
   ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
   description       = "Allow any outbound traffic."
 }
+
+## Database Bastion SG
+resource "aws_security_group" "db_bastion" {
+  name_prefix = "${var.main_project_tag}-db-bastion-sg"
+  description = "Firewall for the db bastion instance"
+  vpc_id      = aws_vpc.database.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-db-bastion-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+resource "aws_security_group_rule" "db_bastion_allow_22" {
+  security_group_id = aws_security_group.db_bastion.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 22
+  to_port           = 22
+  cidr_blocks       = var.allowed_bastion_cidr_blocks
+  ipv6_cidr_blocks  = length(var.allowed_bastion_cidr_blocks_ipv6) > 0 ? var.allowed_bastion_cidr_blocks_ipv6 : null
+  description       = "Allow SSH traffic."
+}
+
+resource "aws_security_group_rule" "db_bastion_allow_outbound" {
+  security_group_id = aws_security_group.db_bastion.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = length(var.allowed_bastion_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
+  description       = "Allow any outbound traffic."
+}
+
+# Security Group for Database Server
+resource "aws_security_group" "database" {
+  name_prefix = "${var.main_project_tag}-database"
+  description = "Database security group."
+  vpc_id = aws_vpc.database.id
+}
+
+resource "aws_security_group_rule" "database_allow_outbound" {
+  security_group_id = aws_security_group.database.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+  description       = "Allow any outbound traffic."
+}
+
+resource "aws_security_group_rule" "database_allow_22_bastion" {
+  security_group_id        = aws_security_group.database.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.db_bastion.id
+  description              = "Allow SSH traffic from consul bastion."
+}
+
+resource "aws_security_group_rule" "database_allow_bastion_27017" {
+  security_group_id = aws_security_group.database.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 27017
+  to_port           = 27017
+  source_security_group_id = aws_security_group.db_bastion.id
+  description       = "Allow incoming traffic from the Bastion onto the database port."
+}
