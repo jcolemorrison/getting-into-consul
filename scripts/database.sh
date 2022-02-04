@@ -89,7 +89,7 @@ mv fake-service /usr/local/bin
 chmod +x /usr/local/bin/fake-service
 
 # Fake Service Systemd Unit File
-cat > /etc/systemd/system/api.service <<- EOF
+cat > /etc/systemd/system/database.service <<- EOF
 [Unit]
 Description=database
 After=syslog.target network.target
@@ -111,7 +111,7 @@ systemctl daemon-reload
 systemctl start database
 
 # Consul Config file for our fake database service
-cat > /etc/consul.d/api.hcl <<- EOF
+cat > /etc/consul.d/database.hcl <<- EOF
 service {
   id = "database"
   name = "database"

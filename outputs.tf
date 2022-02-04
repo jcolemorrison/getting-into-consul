@@ -49,6 +49,11 @@ output "asg_tm_name" {
 	description = "Name of the Terminating Gateway AutoScaling Group"
 }
 
+output "database_private_ip" {
+	value = aws_instance.database.private_ip
+	description = "Private IP of the Database"
+}
+
 output "aws_region" {
 	value = var.aws_default_region
 	description = "Region in AWS everything is deployed to"

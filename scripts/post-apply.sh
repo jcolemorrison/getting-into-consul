@@ -89,7 +89,7 @@ for node in $TM_INSTANCES
 do
 	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
 	hostname="ip-${node//./-}"
-	echo "client_ig_node_id_token_$TM_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+	echo "client_tm_node_id_token_$TM_NODE = \"$(consul acl token create -service-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 	TM_NODE=$((TM_NODE++))
 done
 

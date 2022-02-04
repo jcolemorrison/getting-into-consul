@@ -329,7 +329,7 @@ resource "aws_security_group" "terminating_gateway" {
 
 resource "aws_security_group_rule" "terminating_gateway_allow_22_bastion" {
   security_group_id        = aws_security_group.terminating_gateway.id
-  type                     = "terminating"
+  type                     = "ingress"
   protocol                 = "tcp"
   from_port                = 22
   to_port                  = 22
@@ -360,7 +360,7 @@ resource "aws_security_group" "terminating_gateway_load_balancer" {
 
 resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_80" {
   security_group_id = aws_security_group.terminating_gateway_load_balancer.id
-  type              = "terminating"
+  type              = "ingress"
   protocol          = "tcp"
   from_port         = 80
   to_port           = 80
@@ -370,7 +370,7 @@ resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_80" 
 
 resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_443" {
   security_group_id = aws_security_group.terminating_gateway_load_balancer.id
-  type              = "terminating"
+  type              = "ingress"
   protocol          = "tcp"
   from_port         = 443
   to_port           = 443

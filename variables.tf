@@ -73,12 +73,6 @@ variable "vpc_db_private_subnet_count" {
   default     = 2
 }
 
-variable "vpc_db_private_subnet_count" {
-  description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
-  type        = number
-  default     = 2
-}
-
 # EC2 Variables
 variable "ami_id" {
   description = "AMI ID to be used on all AWS EC2 Instances."
