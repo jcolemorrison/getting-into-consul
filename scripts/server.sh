@@ -7,7 +7,8 @@ echo "Hello Consul Server!"
 # 2 - a default systemd consul.service file
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update && apt install -y consul=1.11.1
+# change to 1.11.3
+apt update && apt install -y consul=1.11.3
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -102,51 +103,12 @@ config_entries {
       ]
     },
     {
-      Kind = "service-resolver"
-      Name = "api"
-      DefaultSubset = "v1"
-      Subsets = {
-        v1 = {
-          Filter = "Service.Meta.version == v1"
-        }
-        v2 = {
-          Filter = "Service.Meta.version == v2"
-        }
-      }
-    },
-    {
-      Kind = "service-splitter"
-      Name = "api"
-      Splits = [
+      Kind = "service-intentions"
+      Name = "database"
+      Sources = [
         {
-          Weight        = 90
-          ServiceSubset = "v1"
-        },
-        {
-          Weight        = 10
-          ServiceSubset = "v2"
-        },
-      ]
-    },
-    {
-      Kind = "service-router"
-      Name = "api"
-      Routes = [
-        {
-          Match {
-            HTTP {
-              Header = [
-                {
-                  Name  = "x-debug"
-                  Exact = "1"
-                },
-              ]
-            }
-          }
-          Destination {
-            Service       = "api"
-            ServiceSubset = "v2"
-          }
+          Name = "api"
+          Action = "allow"
         }
       ]
     }

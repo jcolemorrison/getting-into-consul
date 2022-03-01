@@ -32,4 +32,6 @@ resource "aws_instance" "database" {
     { "Name" = "${var.main_project_tag}-database" },
     { "Project" = var.main_project_tag }
   )
+
+  depends_on = [aws_nat_gateway.db_nat]
 }

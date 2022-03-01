@@ -13,6 +13,11 @@ output "bastion_ip" {
   description = "Public IP address of bastion"
 }
 
+output "db_bastion_ip" {
+  value       = aws_instance.db_bastion.public_ip
+  description = "Public IP address of the database bastion"
+}
+
 output "consul_token" {
   value       = random_uuid.consul_bootstrap_token.result
   description = "Consul management token"
@@ -29,10 +34,10 @@ output "asg_api_name" {
 	description = "Name of the API AutoScaling Group"
 }
 
-output "asg_api_v2_name" {
-	value = aws_autoscaling_group.consul_client_api_v2.name
-	description = "Name of the API v2 AutoScaling Group"
-}
+# output "asg_api_v2_name" {
+# 	value = aws_autoscaling_group.consul_client_api_v2.name
+# 	description = "Name of the API v2 AutoScaling Group"
+# }
 
 output "asg_web_name" {
 	value = aws_autoscaling_group.consul_client_web.name

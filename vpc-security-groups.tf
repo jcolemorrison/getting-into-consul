@@ -127,6 +127,66 @@ resource "aws_security_group_rule" "consul_server_allow_client_8300" {
   description              = "Allow RPC traffic from Consul Client to Server.  For client and server agents to send and receive data stored in Consul."
 }
 
+resource "aws_security_group_rule" "consul_server_allow_terminating_gateway_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.terminating_gateway.id
+  description              = "Allow HTTP traffic from Consul Terminating Gateway."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_terminating_gateway_8301" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.terminating_gateway.id
+  description              = "Allow LAN gossip traffic from Consul Terminating Gateway to Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_terminating_gateway_8300" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8300
+  to_port                  = 8300
+  source_security_group_id = aws_security_group.terminating_gateway.id
+  description              = "Allow RPC traffic from Consul Terminating Gateway to Server.  For Terminating Gateway and server agents to send and receive data stored in Consul."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_ingress_gateway_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.ingress_gateway.id
+  description              = "Allow HTTP traffic from Consul ingress Gateway."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_ingress_gateway_8301" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.ingress_gateway.id
+  description              = "Allow LAN gossip traffic from Consul ingress Gateway to Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_ingress_gateway_8300" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8300
+  to_port                  = 8300
+  source_security_group_id = aws_security_group.ingress_gateway.id
+  description              = "Allow RPC traffic from Consul ingress Gateway to Server.  For ingress Gateway and server agents to send and receive data stored in Consul."
+}
+
 resource "aws_security_group_rule" "consul_server_allow_server_8301" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"
@@ -347,6 +407,17 @@ resource "aws_security_group_rule" "terminating_gateway_allow_outbound" {
   description       = "Allow any outbound traffic."
 }
 
+resource "aws_security_group_rule" "terminating_gateway_allow_8443" {
+  security_group_id        = aws_security_group.terminating_gateway.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8443
+  to_port                  = 8443
+  source_security_group_id = aws_security_group.consul_client.id
+  description              = "Allow connections from other proxies in the mesh."
+}
+
+
 ## Terminating Gateway Load Balancer SG
 resource "aws_security_group" "terminating_gateway_load_balancer" {
   name_prefix = "${var.main_project_tag}-tm-alb-sg"
@@ -450,12 +521,33 @@ resource "aws_security_group_rule" "database_allow_22_bastion" {
   description              = "Allow SSH traffic from consul bastion."
 }
 
-resource "aws_security_group_rule" "database_allow_bastion_27017" {
+resource "aws_security_group_rule" "database_allow_bastion_5432" {
   security_group_id = aws_security_group.database.id
   type              = "ingress"
   protocol          = "tcp"
-  from_port         = 27017
-  to_port           = 27017
+  from_port         = 5432
+  to_port           = 5432
   source_security_group_id = aws_security_group.db_bastion.id
   description       = "Allow incoming traffic from the Bastion onto the database port."
+}
+
+resource "aws_security_group_rule" "database_allow_terminating_gateway_5432" {
+  security_group_id = aws_security_group.database.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 5432
+  to_port           = 5432
+  source_security_group_id = aws_security_group.terminating_gateway.id
+  description       = "Allow incoming traffic from the Terminating Gateway onto the database port."
+}
+
+# Peering connections require the cidr block since security group ID's won't carry across peered vpcs
+resource "aws_security_group_rule" "database_allow_main_vpc" {
+  security_group_id = aws_security_group.database.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 5432
+  to_port           = 5432
+  cidr_blocks       = [var.vpc_cidr]
+  description       = "Allow incoming traffic from the Terminating Gateway onto the database port."
 }
