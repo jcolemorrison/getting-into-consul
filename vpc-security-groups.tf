@@ -269,6 +269,16 @@ resource "aws_security_group_rule" "consul_client_allow_9090" {
   description              = "Allow traffic from Consul Clients for Fake Service."
 }
 
+resource "aws_security_group_rule" "consul_client_allow_igw_9090" {
+  security_group_id        = aws_security_group.consul_client.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 20000
+  to_port                  = 20000
+  source_security_group_id = aws_security_group.ingress_gateway.id
+  description              = "Allow traffic from Ingress Gateway to Consul Clients."
+}
+
 resource "aws_security_group_rule" "consul_client_allow_20000" {
   security_group_id        = aws_security_group.consul_client.id
   type                     = "ingress"
@@ -309,6 +319,16 @@ resource "aws_security_group" "ingress_gateway" {
     { "Name" = "${var.main_project_tag}-ingress-gateway-sg" },
     { "Project" = var.main_project_tag }
   )
+}
+
+resource "aws_security_group_rule" "ingress_gateway_allow_ALB_9090" {
+  security_group_id        = aws_security_group.ingress_gateway.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 9090
+  to_port                  = 9090
+  source_security_group_id = aws_security_group.ingress_gateway_load_balancer.id
+  description              = "Allow HTTP traffic from Ingress Gateway Load Balancer."
 }
 
 resource "aws_security_group_rule" "ingress_gateway_allow_22_bastion" {

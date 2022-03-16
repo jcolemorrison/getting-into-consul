@@ -13,7 +13,7 @@ resource "aws_instance" "db_bastion" {
 }
 
 resource "aws_instance" "database" {
-  ami                         = data.aws_ssm_parameter.ubuntu_1804_ami_id.value
+  ami                         = var.use_latest_ami ? data.aws_ssm_parameter.ubuntu_1804_ami_id.value : var.ami_id
   instance_type               = "t3.micro"
   vpc_security_group_ids      = [aws_security_group.database.id]
   subnet_id                   = aws_subnet.db_private[0].id
