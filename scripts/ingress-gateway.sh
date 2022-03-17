@@ -89,7 +89,7 @@ After=syslog.target network.target
 
 # Put ingress gateway service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=ig -token=ig_service_token
+ExecStart=/usr/bin/consul connect envoy -gateway=ingress -register -service ig -token=ig_service_token
 ExecStop=/bin/sleep 5
 Restart=always
 

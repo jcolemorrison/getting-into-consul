@@ -111,6 +111,34 @@ config_entries {
           Action = "allow"
         }
       ]
+    },
+    {
+      Kind = "terminating-gateway"
+      Name = "tm"
+      Services = [
+        {
+          Name = "database"
+        }
+      ]
+    },
+    {
+      Kind = "ingress-gateway"
+      Name = "ig"
+
+      Listeners = [
+        {
+          Port = 9090
+          Protocol = "http"
+          Services = [
+            {
+              Name = "api"
+            },
+            {
+              Name = "web"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

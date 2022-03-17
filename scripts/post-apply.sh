@@ -97,7 +97,10 @@ done
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-echo "client_tm_service_token = \"$(consul acl token create -service-identity="tm:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+
+TM_SERVICE_TOKEN = $(consul acl token create -service-identity="tm:dc1" -format=json)
+
+echo "client_tm_service_token = \"$($TM_SERVICE_TOKEN | jq -r .SecretID)\"" >> tokens.txt
 echo "client_ig_service_token = \"$(consul acl token create -service-identity="ig:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
@@ -138,10 +141,43 @@ EOF
 export DB_PRIVATE_IP=$(terraform output -raw database_private_ip)
 export DB_BASTION_IP=$(terraform output -raw db_bastion_ip)
 
-db_hostname="ip-${DB_PRIVATE_IP//./-}"
+DB_HOSTNAME="ip-${DB_PRIVATE_IP//./-}"
 
-echo "client_db_node_id_token = \"$(consul acl token create -node-identity="$db_hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "client_db_node_id_token = \"$(consul acl token create -node-identity="$DB_HOSTNAME:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_db_service_token = \"$(consul acl token create -service-identity="db:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+
+# Set up the Database for Terminating Gateway
+cat > `pwd -P`/files/database.json <<- EOF
+{
+  "Node": "${DB_HOSTNAME}",
+  "Address": "${DB_PRIVATE_IP}",
+  "NodeMeta": {
+    "external-node": "true",
+    "external-probe": "true"
+  },
+  "Service": {
+    "ID": "database",
+    "Service": "database",
+    "Port": 5432
+  }
+}
+EOF
+
+# Create the ACL for Terminating Gateway
+cat > `pwd -P`/files/database-acl.hcl <<- EOF
+service "database" {
+	policy = "write"
+}
+EOF
+
+# Register the database service
+curl --request PUT -H "X-Consul-Token:$CONSUL_HTTP_TOKEN" --data @`pwd -P`/files/database.json $CONSUL_HTTP_ADDR:8500/v1/catalog/register
+
+# Create the database ACL policy
+consul acl policy create -name "terminating-gateway-db" -description "allow database service write access" -rules @`pwd -P`/files/database-acl.hcl -valid-datacenter dc1
+
+# Attach the database ACL policy to the Terminating Gateway token
+consul acl token update -id $($TM_SERVICE_TOKEN | jq -r .AccessorID) -policy-name "terminating-gateway-db" -merge-policies
 
 # User Setup Messages
 echo ""
