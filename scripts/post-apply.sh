@@ -64,44 +64,9 @@ do
 	WEB_NODE=$((WEB_NODE++))
 done
 
-# Node Identity Tokens - Terminating Gateways
-TM_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
-	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-			--query "AutoScalingInstances[?AutoScalingGroupName=='$TM_ASG_NAME'].InstanceId") \
---query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
-
-TM_NODE=0
-for node in $TM_INSTANCES
-do
-	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
-	hostname="ip-${node//./-}"
-	echo "client_tm_node_id_token_$TM_NODE = \"$(consul acl token create -node-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-	TM_NODE=$((TM_NODE++))
-done
-
-# Node Identity Tokens - Ingress Gateways
-IG_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
-	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-			--query "AutoScalingInstances[?AutoScalingGroupName=='$IG_ASG_NAME'].InstanceId") \
---query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
-
-IG_NODE=0
-for node in $IG_INSTANCES
-do
-	# Assumes hostnames on AWS EC2 take the form of ip-*-*-*-*
-	hostname="ip-${node//./-}"
-	echo "client_ig_node_id_token_$IG_NODE = \"$(consul acl token create -node-identity="$hostname:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-	IG_NODE=$((IG_NODE++))
-done
-
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-
-TM_SERVICE_TOKEN = $(consul acl token create -service-identity="tm:dc1" -format=json)
-
-echo "client_tm_service_token = \"$($TM_SERVICE_TOKEN | jq -r .SecretID)\"" >> tokens.txt
-echo "client_ig_service_token = \"$(consul acl token create -service-identity="ig:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
 # of consul servers until the root module is completely deployed.
@@ -137,48 +102,6 @@ consul_server_ip = "${SERVER_INSTANCE_IP}"
 consul_token = "${CONSUL_TOKEN}"
 EOF
 
-# Set up for the Database
-export DB_PRIVATE_IP=$(terraform output -raw database_private_ip)
-export DB_BASTION_IP=$(terraform output -raw db_bastion_ip)
-
-DB_HOSTNAME="ip-${DB_PRIVATE_IP//./-}"
-
-echo "client_db_node_id_token = \"$(consul acl token create -node-identity="$DB_HOSTNAME:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-echo "client_db_service_token = \"$(consul acl token create -service-identity="db:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-
-# Set up the Database for Terminating Gateway
-cat > `pwd -P`/files/database.json <<- EOF
-{
-  "Node": "${DB_HOSTNAME}",
-  "Address": "${DB_PRIVATE_IP}",
-  "NodeMeta": {
-    "external-node": "true",
-    "external-probe": "true"
-  },
-  "Service": {
-    "ID": "database",
-    "Service": "database",
-    "Port": 5432
-  }
-}
-EOF
-
-# Create the ACL for Terminating Gateway
-cat > `pwd -P`/files/database-acl.hcl <<- EOF
-service "database" {
-	policy = "write"
-}
-EOF
-
-# Register the database service
-curl --request PUT -H "X-Consul-Token:$CONSUL_HTTP_TOKEN" --data @`pwd -P`/files/database.json $CONSUL_HTTP_ADDR:8500/v1/catalog/register
-
-# Create the database ACL policy
-consul acl policy create -name "terminating-gateway-db" -description "allow database service write access" -rules @`pwd -P`/files/database-acl.hcl -valid-datacenter dc1
-
-# Attach the database ACL policy to the Terminating Gateway token
-consul acl token update -id $($TM_SERVICE_TOKEN | jq -r .AccessorID) -policy-name "terminating-gateway-db" -merge-policies
-
 # User Setup Messages
 echo ""
 echo "To complete setup reference the tokens in tokens.txt.  The tokens are the ACLs that will be used to set up the various Consul Clients."
@@ -208,31 +131,7 @@ echo "4. Add the 'consul_web_service_token' to the '/etc/systemd/system/consul-e
 echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart web'; 'systemctl restart consul-envoy';"
 
 echo ""
-echo "Part 3 - Terminating Gateway Instances..."
-echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-tm server at ${TM_INSTANCES}."
-echo "2. Add the 'client_tm_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
-echo "3. Add the 'consul_tm_service_token' to the '/etc/consul.d/tm.hcl' file under the service.token block."
-echo "4. Add the 'consul_tm_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
-echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart tm'; 'systemctl restart consul-envoy';"
-
-echo ""
-echo "Part 4 - Ingress Gateway Instances..."
-echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-ig server at ${IG_INSTANCES}."
-echo "2. Add the 'client_ig_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
-echo "3. Add the 'consul_ig_service_token' to the '/etc/consul.d/ig.hcl' file under the service.token block."
-echo "4. Add the 'consul_ig_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
-echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart ig'; 'systemctl restart consul-envoy';"
-
-echo ""
-echo "Part 5 - Database Instances..."
-echo "1. SSH into your DATABASE Bastion at ${DB_BASTION_IP}.  From there SSH into your getting-into-consul-database server at ${DB_PRIVATE_IP}."
-echo "2. Add the 'client_db_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
-echo "3. Add the 'consul_db_service_token' to the '/etc/consul.d/database.hcl' file under the service.token block."
-echo "4. Add the 'consul_db_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
-echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart database'; 'systemctl restart consul-envoy';"
-
-echo ""
-echo "(Optional) Part 6 - Deploying the Prometheus Metrics Server..."
+echo "(Optional) Part 3 - Deploying the Prometheus Metrics Server..."
 echo "1. 'cd' into the nested 'metrics_module' directory."
 echo "2. Run 'terraform init'."
 echo "3. Run 'terraform apply'."

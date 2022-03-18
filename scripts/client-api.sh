@@ -97,7 +97,6 @@ After=syslog.target network.target
 [Service]
 Environment="MESSAGE=api"
 Environment="NAME=api"
-Environment="UPSTREAM_URIS=http://127.0.0.1:5432"
 ExecStart=/usr/local/bin/fake-service
 ExecStop=/bin/sleep 5
 Restart=always
@@ -136,13 +135,6 @@ service {
         name     = "Connect Envoy Sidecar"
         tcp      = "127.0.0.1:20000"
         interval = "10s"
-      }
-      proxy {
-        upstreams {
-          destination_name   = "database"
-          local_bind_address = "127.0.0.1"
-          local_bind_port    = 5432
-        }
       }
     }
   }
