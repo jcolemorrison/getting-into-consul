@@ -7,6 +7,7 @@
 export CONSUL_HTTP_ADDR=http://$(terraform output -raw consul_server)
 export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_token)
 export API_ASG_NAME=$(terraform output -raw asg_api_name)
+export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
 export AWS_REGION=$(terraform output -raw aws_region)
 export BASTION_IP=$(terraform output -raw bastion_ip)
 export WEB_HTTP_ADDR=http://$(terraform output -raw web_server)

@@ -21,7 +21,7 @@ resource "aws_instance" "mesh_gateway_dc2" {
 
   iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
 
-  user_data = base64encode(templatefile("${path.module}/scripts/mesh_gateway_dc2.sh", {
+  user_data = base64encode(templatefile("${path.module}/scripts/mesh-gateway-dc2.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
     GOSSIP_KEY = random_id.gossip_key.b64_std

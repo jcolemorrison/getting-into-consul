@@ -127,6 +127,36 @@ resource "aws_security_group_rule" "consul_server_allow_client_8300" {
   description              = "Allow RPC traffic from Consul Client to Server.  For client and server agents to send and receive data stored in Consul."
 }
 
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.mesh_gateway.id
+  description              = "Allow HTTP traffic from Consul mesh gateway."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_8301" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway.id
+  description              = "Allow LAN gossip traffic from Consul Mesh Gateway to Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_8300" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8300
+  to_port                  = 8300
+  source_security_group_id = aws_security_group.mesh_gateway.id
+  description              = "Allow RPC traffic from Consul Mesh Gateway to Server.  For mesh gateway and server agents to send and receive data stored in Consul."
+}
+
 resource "aws_security_group_rule" "consul_server_allow_server_8301" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"
@@ -274,6 +304,16 @@ resource "aws_security_group_rule" "mesh_gateway_allow_dc2_8443" {
   # TODO: constrain this to the specific CIDR of the other mesh gateway
   cidr_blocks       = [var.vpc_cidr_dc2]
   description       = "TODO"
+}
+
+resource "aws_security_group_rule" "mesh_gateway_allow_22_bastion" {
+  security_group_id        = aws_security_group.mesh_gateway.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description              = "Allow SSH traffic from consul bastion."
 }
 
 resource "aws_security_group_rule" "mesh_gateway_allow_outbound" {

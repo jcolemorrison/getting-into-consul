@@ -35,7 +35,7 @@ resource "aws_security_group_rule" "bastion_dc2_allow_outbound" {
 resource "aws_security_group" "load_balancer_dc2" {
   name_prefix = "${var.main_project_tag}-alb-sg-dc2"
   description = "Firewall for the application load balancer (dc2) fronting the consul server."
-  vpc_id      = aws_vpc.consul.id
+  vpc_id      = aws_vpc.dc2.id
   tags = merge(
     { "Name" = "${var.main_project_tag}-alb-sg-dc2" },
     { "Project" = var.main_project_tag }
@@ -65,7 +65,7 @@ resource "aws_security_group_rule" "load_balancer_dc2_allow_443" {
 }
 
 resource "aws_security_group_rule" "load_balancer_dc2_allow_outbound" {
-  security_group_id = aws_security_group.load_balancer.id
+  security_group_id = aws_security_group.load_balancer_dc2.id
   type              = "egress"
   protocol          = "-1"
   from_port         = 0
@@ -124,6 +124,36 @@ resource "aws_security_group_rule" "consul_server_dc2_allow_client_8300" {
   to_port                  = 8300
   source_security_group_id = aws_security_group.consul_client_dc2.id
   description              = "Allow RPC traffic from Consul Client to Server in DC2.  For client and server agents to send and receive data stored in Consul."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8500" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow HTTP traffic from Consul mesh gateway."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8301" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow LAN gossip traffic from Consul Mesh Gateway to Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8300" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8300
+  to_port                  = 8300
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow RPC traffic from Consul Mesh Gateway to Server.  For mesh gateway and server agents to send and receive data stored in Consul."
 }
 
 resource "aws_security_group_rule" "consul_server_dc2_allow_server_8301" {
@@ -237,39 +267,6 @@ resource "aws_security_group_rule" "consul_client_dc2_allow_outbound" {
   description       = "Allow any outbound traffic."
 }
 
-## Dc2 Bastion SG
-resource "aws_security_group" "bastion_dc2" {
-  name_prefix = "${var.main_project_tag}-bastion-sg-dc2"
-  description = "Firewall for the dc2 bastion instance"
-  vpc_id      = aws_vpc.dc2.id
-  tags = merge(
-    { "Name" = "${var.main_project_tag}-bastion-sg-dc2" },
-    { "Project" = var.main_project_tag }
-  )
-}
-
-resource "aws_security_group_rule" "bastion_dc2_allow_22" {
-  security_group_id = aws_security_group.bastion_dc2.id
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 22
-  to_port           = 22
-  cidr_blocks       = var.allowed_bastion_cidr_blocks
-  ipv6_cidr_blocks  = length(var.allowed_bastion_cidr_blocks_ipv6) > 0 ? var.allowed_bastion_cidr_blocks_ipv6 : null
-  description       = "Allow SSH traffic."
-}
-
-resource "aws_security_group_rule" "bastion_dc2_allow_outbound" {
-  security_group_id = aws_security_group.bastion_dc2.id
-  type              = "egress"
-  protocol          = "-1"
-  from_port         = 0
-  to_port           = 0
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = length(var.allowed_bastion_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
-  description       = "Allow any outbound traffic."
-}
-
 # Mesh Gateway DC2 Security Group
 resource "aws_security_group" "mesh_gateway_dc2" {
   name_prefix = "${var.main_project_tag}-mesh-gateway-sg-dc2"
@@ -304,6 +301,16 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc2_8443" {
   # TODO: constrain this to the specific CIDR of the other mesh gateway
   cidr_blocks       = [var.vpc_cidr]
   description       = "TODO"
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_22_bastion" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion_dc2.id
+  description              = "Allow SSH traffic from consul bastion."
 }
 
 resource "aws_security_group_rule" "mesh_gateway_dc2_allow_outbound" {
