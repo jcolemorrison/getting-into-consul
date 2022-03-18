@@ -42,32 +42,32 @@ variable "vpc_private_subnet_count" {
   default     = 2
 }
 
-# VPC DB Variables
-variable "vpc_db_cidr" {
-  description = "Cidr block for the DB VPC.  Using a /16 or /20 Subnet Mask is recommended."
+# VPC DC2 Variables
+variable "vpc_dc2_cidr" {
+  description = "Cidr block for the DC2 VPC.  Using a /16 or /20 Subnet Mask is recommended."
   type        = string
   default     = "10.254.0.0/20"
 }
 
-variable "vpc_db_instance_tenancy" {
-  description = "Tenancy for instances launched into the DB VPC."
+variable "vpc_dc2_instance_tenancy" {
+  description = "Tenancy for instances launched into the DC2 VPC."
   type        = string
   default     = "default"
 }
 
-variable "vpc_db_tags" {
-  description = "Additional tags to add to the DB VPC and its resources."
+variable "vpc_dc2_tags" {
+  description = "Additional tags to add to the DC2 VPC and its resources."
   type        = map(string)
   default     = {}
 }
 
-variable "vpc_db_public_subnet_count" {
+variable "vpc_dc2_public_subnet_count" {
   description = "The number of public subnets to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
   type        = number
   default     = 2
 }
 
-variable "vpc_db_private_subnet_count" {
+variable "vpc_dc2_private_subnet_count" {
   description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
   type        = number
   default     = 2

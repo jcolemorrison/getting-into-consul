@@ -239,19 +239,19 @@ resource "aws_security_group_rule" "consul_client_allow_outbound" {
   description       = "Allow any outbound traffic."
 }
 
-## Database Bastion SG
-resource "aws_security_group" "db_bastion" {
-  name_prefix = "${var.main_project_tag}-db-bastion-sg"
-  description = "Firewall for the db bastion instance"
-  vpc_id      = aws_vpc.database.id
+## Dc2 Bastion SG
+resource "aws_security_group" "dc2_bastion" {
+  name_prefix = "${var.main_project_tag}-dc2-bastion-sg"
+  description = "Firewall for the dc2 bastion instance"
+  vpc_id      = aws_vpc.dc2.id
   tags = merge(
-    { "Name" = "${var.main_project_tag}-db-bastion-sg" },
+    { "Name" = "${var.main_project_tag}-dc2-bastion-sg" },
     { "Project" = var.main_project_tag }
   )
 }
 
-resource "aws_security_group_rule" "db_bastion_allow_22" {
-  security_group_id = aws_security_group.db_bastion.id
+resource "aws_security_group_rule" "dc2_bastion_allow_22" {
+  security_group_id = aws_security_group.dc2_bastion.id
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 22
@@ -261,8 +261,8 @@ resource "aws_security_group_rule" "db_bastion_allow_22" {
   description       = "Allow SSH traffic."
 }
 
-resource "aws_security_group_rule" "db_bastion_allow_outbound" {
-  security_group_id = aws_security_group.db_bastion.id
+resource "aws_security_group_rule" "dc2_bastion_allow_outbound" {
+  security_group_id = aws_security_group.dc2_bastion.id
   type              = "egress"
   protocol          = "-1"
   from_port         = 0
@@ -273,12 +273,12 @@ resource "aws_security_group_rule" "db_bastion_allow_outbound" {
 }
 
 # Peering connections require the cidr block since security group ID's won't carry across peered vpcs
-resource "aws_security_group_rule" "database_allow_main_vpc" {
-  security_group_id = aws_security_group.database.id
+resource "aws_security_group_rule" "dc2_allow_main_vpc" {
+  security_group_id = aws_security_group.dc2.id
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 5432
   to_port           = 5432
   cidr_blocks       = [var.vpc_cidr]
-  description       = "Allow incoming traffic from the Terminating Gateway onto the database port."
+  description       = "TODO"
 }

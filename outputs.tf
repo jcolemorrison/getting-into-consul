@@ -13,9 +13,9 @@ output "bastion_ip" {
   description = "Public IP address of bastion"
 }
 
-output "db_bastion_ip" {
-  value       = aws_instance.db_bastion.public_ip
-  description = "Public IP address of the database bastion"
+output "dc2_bastion_ip" {
+  value       = aws_instance.dc2_bastion.public_ip
+  description = "Public IP address of the dc2 bastion"
 }
 
 output "consul_token" {
