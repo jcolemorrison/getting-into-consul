@@ -3,6 +3,11 @@ output "consul_server" {
   description = "DNS name of AWS ALB for Consul server"
 }
 
+output "consul_server_dc2" {
+  value       = aws_lb.alb_dc2.dns_name
+  description = "DNS name of AWS ALB in DC2 for Consul server"
+}
+
 output "web_server" {
 	value = aws_lb.alb_web.dns_name
   description = "DNS name of AWS ALB for the fake web service"
@@ -13,8 +18,8 @@ output "bastion_ip" {
   description = "Public IP address of bastion"
 }
 
-output "dc2_bastion_ip" {
-  value       = aws_instance.dc2_bastion.public_ip
+output "bastion_ip_dc2" {
+  value       = aws_instance.bastion_dc2.public_ip
   description = "Public IP address of the dc2 bastion"
 }
 
@@ -32,6 +37,11 @@ output "asg_consul_server_name" {
 output "asg_api_name" {
 	value = aws_autoscaling_group.consul_client_api.name
 	description = "Name of the API AutoScaling Group"
+}
+
+output "asg_api_dc2_name" {
+	value = aws_autoscaling_group.consul_client_api_dc2.name
+	description = "Name of the API AutoScaling Group in dc2"
 }
 
 # output "asg_api_v2_name" {
