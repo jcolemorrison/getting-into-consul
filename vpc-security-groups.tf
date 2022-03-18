@@ -238,3 +238,50 @@ resource "aws_security_group_rule" "consul_client_allow_outbound" {
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow any outbound traffic."
 }
+
+# Mesh Gateway DC1 Security Group
+resource "aws_security_group" "mesh_gateway" {
+  name_prefix = "${var.main_project_tag}-mesh-gateway-sg"
+  description = "Firewall for the mesh gateway."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-mesh-gateways-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+# Peering connections require the cidr block since security group ID's won't carry across peered vpcs
+# NOTE FOR PART 11: This should enable inbound traffic for both:
+# - mesh gateway in DC2
+# - the consul servers in DC2
+resource "aws_security_group_rule" "mesh_gateway_allow_dc2_8300" {
+  security_group_id = aws_security_group.mesh_gateway.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 8300
+  to_port           = 8300
+  # TODO: constrain this to the specific CIDR of the other mesh gateway
+  cidr_blocks       = [var.vpc_cidr_dc2]
+  description       = "TODO"
+}
+
+resource "aws_security_group_rule" "mesh_gateway_allow_dc2_8443" {
+  security_group_id = aws_security_group.mesh_gateway.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 8443
+  to_port           = 8443
+  # TODO: constrain this to the specific CIDR of the other mesh gateway
+  cidr_blocks       = [var.vpc_cidr_dc2]
+  description       = "TODO"
+}
+
+resource "aws_security_group_rule" "mesh_gateway_allow_outbound" {
+  security_group_id = aws_security_group.mesh_gateway.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
+}

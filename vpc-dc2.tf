@@ -1,7 +1,7 @@
 # Main VPC resource
 resource "aws_vpc" "dc2" {
-  cidr_block                       = var.vpc_dc2_cidr
-  instance_tenancy                 = var.vpc_dc2_instance_tenancy
+  cidr_block                       = var.vpc_cidr_dc2
+  instance_tenancy                 = var.vpc_instance_tenancy_dc2
   enable_dns_support               = true
   enable_dns_hostnames             = true
   assign_generated_ipv6_cidr_block = true
@@ -9,7 +9,7 @@ resource "aws_vpc" "dc2" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-vpc" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 
@@ -20,7 +20,7 @@ resource "aws_internet_gateway" "dc2_igw" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-igw" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 
@@ -37,7 +37,7 @@ resource "aws_eip" "dc2_nat" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-nat-eip" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 
   depends_on = [aws_internet_gateway.dc2_igw]
@@ -51,7 +51,7 @@ resource "aws_nat_gateway" "dc2_nat" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-nat" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 
   depends_on = [
@@ -66,7 +66,7 @@ resource "aws_route_table" "dc2_public" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-public-rtb" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 
@@ -83,7 +83,7 @@ resource "aws_route_table" "dc2_private" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-private-rtb" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 
@@ -115,7 +115,7 @@ resource "aws_subnet" "dc2_public" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-public-${data.aws_availability_zones.available.names[count.index]}" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 
@@ -132,7 +132,7 @@ resource "aws_subnet" "dc2_private" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-dc2-private-${data.aws_availability_zones.available.names[count.index]}" },
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 

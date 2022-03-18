@@ -18,7 +18,19 @@ variable "vpc_cidr" {
   default     = "10.255.0.0/20"
 }
 
+variable "vpc_cidr_dc2" {
+  description = "Cidr block for the VPC in DC2.  Using a /16 or /20 Subnet Mask is recommended."
+  type        = string
+  default     = "10.254.0.0/20"
+}
+
 variable "vpc_instance_tenancy" {
+  description = "Tenancy for instances launched into the VPC."
+  type        = string
+  default     = "default"
+}
+
+variable "vpc_instance_tenancy_dc2" {
   description = "Tenancy for instances launched into the VPC."
   type        = string
   default     = "default"
@@ -26,6 +38,12 @@ variable "vpc_instance_tenancy" {
 
 variable "vpc_tags" {
   description = "Additional tags to add to the VPC and its resources."
+  type        = map(string)
+  default     = {}
+}
+
+variable "vpc_tags_dc2" {
+  description = "Additional tags to add to the VPC in DC2 and its resources."
   type        = map(string)
   default     = {}
 }
