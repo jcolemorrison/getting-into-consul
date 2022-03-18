@@ -9,9 +9,9 @@ resource "aws_autoscaling_group" "consul_server_dc2" {
 
 	target_group_arns = [aws_lb_target_group.alb_targets_dc2.arn]
 
-	desired_capacity = var.server_dc2_desired_count
-  min_size = var.server_dc2_min_count
-  max_size = var.server_dc2_max_count
+	desired_capacity = var.server_desired_count_dc2
+  min_size = var.server_min_count_dc2
+  max_size = var.server_max_count_dc2
 
 	# AKA the subnets to launch resources in 
   vpc_zone_identifier = aws_subnet.dc2_private.*.id
@@ -63,9 +63,9 @@ resource "aws_autoscaling_group" "consul_client_api_dc2" {
     version = aws_launch_template.consul_client_api_dc2.latest_version
   }
 
-	desired_capacity = var.client_api_dc2_desired_count
-  min_size = var.client_api_dc2_min_count
-  max_size = var.client_api_dc2_max_count
+	desired_capacity = var.client_api_desired_count_dc2
+  min_size = var.client_api_min_count_dc2
+  max_size = var.client_api_max_count_dc2
 
 	# AKA the subnets to launch resources in 
   vpc_zone_identifier = aws_subnet.dc2_private.*.id

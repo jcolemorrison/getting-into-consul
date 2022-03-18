@@ -54,8 +54,20 @@ variable "vpc_public_subnet_count" {
   default     = 2
 }
 
+variable "vpc_public_subnet_count_dc2" {
+  description = "The number of public subnets in dc2 to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
+  type        = number
+  default     = 2
+}
+
 variable "vpc_private_subnet_count" {
   description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
+  type        = number
+  default     = 2
+}
+
+variable "vpc_private_subnet_count_dc2" {
+  description = "The number of private subnets to create in dc2.  Cannot exceed the number of AZs in your selected region."
   type        = number
   default     = 2
 }
@@ -113,19 +125,37 @@ variable "ec2_key_pair_name" {
 variable "server_desired_count" {
   description = "The desired number of consul servers.  For Raft elections, should be an odd number."
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "server_min_count" {
   description = "The minimum number of consul servers."
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "server_max_count" {
   description = "The maximum number of consul servers."
   type        = number
-  default     = 3
+  default     = 1
+}
+
+variable "server_desired_count_dc2" {
+  description = "The desired number of consul servers in DC2.  For Raft elections, should be an odd number."
+  type        = number
+  default     = 1
+}
+
+variable "server_min_count_dc2" {
+  description = "The minimum number of consul servers in DC2."
+  type        = number
+  default     = 1
+}
+
+variable "server_max_count_dc2" {
+  description = "The maximum number of consul servers in DC2."
+  type        = number
+  default     = 1
 }
 
 ## Consul Web Clients
@@ -166,24 +196,24 @@ variable "client_api_max_count" {
   default     = 1
 }
 
-## Consul API v2 Clients
-# variable "client_api_v2_desired_count" {
-#   description = "The desired number of consul api v2 clients."
-#   type        = number
-#   default     = 1
-# }
+## Consul API dc2 Clients
+variable "client_api_desired_count_dc2" {
+  description = "The desired number of consul api dc2 clients."
+  type        = number
+  default     = 1
+}
 
-# variable "client_api_v2_min_count" {
-#   description = "The minimum number of consul api v2 clients."
-#   type        = number
-#   default     = 1
-# }
+variable "client_api_min_count_dc2" {
+  description = "The minimum number of consul api dc2 clients."
+  type        = number
+  default     = 1
+}
 
-# variable "client_api_v2_max_count" {
-#   description = "The maximum number of consul api v2 clients."
-#   type        = number
-#   default     = 1
-# }
+variable "client_api_max_count_dc2" {
+  description = "The maximum number of consul api dc2 clients."
+  type        = number
+  default     = 1
+}
 
 ## Consul Metrics Clients
 variable "client_metrics_desired_count" {

@@ -37,7 +37,7 @@ resource "aws_launch_template" "consul_server_dc2" {
   user_data = base64encode(templatefile("${path.module}/scripts/server-dc2.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
-    BOOTSTRAP_NUMBER = var.server_dc2_min_count
+    BOOTSTRAP_NUMBER = var.server_min_count_dc2
     GOSSIP_KEY = random_id.gossip_key.b64_std
     CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
     SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_dc2_signed_cert.cert_pem

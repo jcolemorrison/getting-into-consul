@@ -14,7 +14,7 @@ resource "aws_vpc_peering_connection" "dc2" {
   tags = merge(
     { "Name" = "${var.main_project_tag}-vpc-peering-connection"},
     { "Project" = var.main_project_tag },
-    var.vpc_dc2_tags
+    var.vpc_tags_dc2
   )
 }
 

@@ -102,7 +102,7 @@ resource "aws_route" "dc2_private_internet_access_ipv6" {
 
 ## Public Subnets
 resource "aws_subnet" "dc2_public" {
-  count = var.vpc_dc2_public_subnet_count
+  count = var.vpc_public_subnet_count_dc2
 
   vpc_id                  = aws_vpc.dc2.id
   cidr_block              = cidrsubnet(aws_vpc.dc2.cidr_block, 4, count.index)
@@ -121,12 +121,12 @@ resource "aws_subnet" "dc2_public" {
 
 ## Private Subnets
 resource "aws_subnet" "dc2_private" {
-  count = var.vpc_dc2_private_subnet_count
+  count = var.vpc_private_subnet_count_dc2
 
   vpc_id = aws_vpc.dc2.id
 
   // Increment the netnum by the number of public subnets to avoid overlap
-  cidr_block        = cidrsubnet(aws_vpc.dc2.cidr_block, 4, count.index + var.vpc_dc2_public_subnet_count)
+  cidr_block        = cidrsubnet(aws_vpc.dc2.cidr_block, 4, count.index + var.vpc_public_subnet_count_dc2)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = merge(
@@ -138,7 +138,7 @@ resource "aws_subnet" "dc2_private" {
 
 ## Public Subnet Route Associations
 resource "aws_route_table_association" "dc2_public" {
-  count = var.vpc_dc2_public_subnet_count
+  count = var.vpc_public_subnet_count_dc2
 
   subnet_id      = element(aws_subnet.dc2_public.*.id, count.index)
   route_table_id = aws_route_table.dc2_public.id
@@ -146,7 +146,7 @@ resource "aws_route_table_association" "dc2_public" {
 
 ## Private Subnet Route Associations
 resource "aws_route_table_association" "dc2_private" {
-  count = var.vpc_dc2_private_subnet_count
+  count = var.vpc_private_subnet_count_dc2
 
   subnet_id      = element(aws_subnet.dc2_private.*.id, count.index)
   route_table_id = aws_route_table.dc2_private.id
