@@ -31,9 +31,16 @@ do
 	API_NODE=$((API_NODE++))
 done
 
-
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc2" -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
+
+# Set up for the Mesh Gateway in DC2
+export MESH_GATEWAY_PRIVATE_IP=$(terraform output -raw mesh_gateway_private_ip_dc2)
+
+MESH_GATEWAY_HOSTNAME="ip-${MESH_GATEWAY_PRIVATE_IP//./-}"
+
+echo "mesh_gateway_node_id_token = \"$(consul acl token create -node-identity="$MESH_GATEWAY_HOSTNAME:dc2" -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
+echo "mesh_gateway_service_token = \"$(consul acl token create -service-identity="meshgateway:dc1" -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
 
 # User Setup Messages
 echo ""
@@ -46,6 +53,13 @@ echo "2. Add the 'consul_api_node_id_token_0' to the '/etc/consul.d/consul.hcl' 
 echo "3. Add the 'consul_api_service_token' to the '/etc/consul.d/api.hcl' file under the service.token block."
 echo "4. Add the 'consul_api_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
 echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart api'; 'systemctl restart consul-envoy';"
+
+echo ""
+echo "Part 2 - Mesh Gateway Instance..."
+echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-mesh-gateway server at ${MESH_GATEWAY_PRIVATE_IP}."
+echo "2. Add the 'mesh_gateway_node_id_token' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "3. Add the 'mesh_gateway_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
+echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul'; 'systemctl restart consul-envoy';"
 
 echo ""
 echo "Visit your Consul Server at ${CONSUL_HTTP_ADDR}."

@@ -102,3 +102,12 @@ output "consul_client_security_group_id" {
 output "allowed_traffic_cidr_blocks_ipv6" {
 	value = var.allowed_traffic_cidr_blocks_ipv6
 }
+
+# apparently this attribute is retreivable despite NOT being in the docs...
+output "mesh_gateway_private_ip" {
+	value = aws_instance.mesh_gateway.private_ip
+}
+
+output "mesh_gateway_private_ip_dc2" {
+	value = aws_instance.mesh_gateway_dc2.private_ip
+}
