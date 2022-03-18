@@ -109,7 +109,7 @@ resource "tls_private_key" "client_api_key" {
 	ecdsa_curve = "P256"
 }
 
-## Public Client Cert
+## Public API Cert
 resource "tls_cert_request" "client_api_cert" {
 	key_algorithm = tls_private_key.client_api_key.algorithm
 	private_key_pem = tls_private_key.client_api_key.private_key_pem
@@ -127,7 +127,7 @@ resource "tls_cert_request" "client_api_cert" {
 	ip_addresses = ["127.0.0.1"]
 }
 
-## Signed Public Client Certificate
+## Signed Public API Certificate
 resource "tls_locally_signed_cert" "client_api_signed_cert" {
 	cert_request_pem = tls_cert_request.client_api_cert.cert_request_pem
 
@@ -143,33 +143,155 @@ resource "tls_locally_signed_cert" "client_api_signed_cert" {
 	validity_period_hours = 8760
 }
 
-# Client API v2 Certificates
-resource "tls_private_key" "client_api_v2_key" {
+# Consul Mesh Gateway DC1 Certificates
+resource "tls_private_key" "mesh_gateway_key" {
 	algorithm = "ECDSA"
 	ecdsa_curve = "P256"
 }
 
-## Public Client Cert
-resource "tls_cert_request" "client_api_v2_cert" {
-	key_algorithm = tls_private_key.client_api_v2_key.algorithm
-	private_key_pem = tls_private_key.client_api_v2_key.private_key_pem
+## Public Mesh Gateway DC1 Cert
+resource "tls_cert_request" "mesh_gateway_cert" {
+	key_algorithm = tls_private_key.mesh_gateway_key.algorithm
+	private_key_pem = tls_private_key.mesh_gateway_key.private_key_pem
 
 	subject {
-		common_name = "client.dc1.consul" # dc1 is the default data center name we used
+		common_name = "mesh.dc1.consul"
 		organization = "HashiCorp Inc."
 	}
 
 	dns_names = [
-		"client.dc1.consul",
+		"mesh.dc1.consul",
 		"localhost"
 	]
 
 	ip_addresses = ["127.0.0.1"]
 }
 
-## Signed Public Client Certificate
-resource "tls_locally_signed_cert" "client_api_v2_signed_cert" {
-	cert_request_pem = tls_cert_request.client_api_v2_cert.cert_request_pem
+## Signed Public Mesh Gateway DC1 Certificate
+resource "tls_locally_signed_cert" "mesh_gateway_signed_cert" {
+	cert_request_pem = tls_cert_request.mesh_gateway_cert.cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}
+
+# DC2 CERTIFICATES
+
+# Consul Server DC2 Certificates
+resource "tls_private_key" "server_dc2_key" {
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256"
+}
+
+## Public Consul Server Dc2 Cert
+resource "tls_cert_request" "server_dc2_cert" {
+	key_algorithm = tls_private_key.server_dc2_key.algorithm
+	private_key_pem = tls_private_key.server_dc2_key.private_key_pem
+
+	subject {
+		common_name = "server.dc2.consul"
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"server.dc2.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Signed Public Consul Server Dc2 Certificate
+resource "tls_locally_signed_cert" "server_dc2_signed_cert" {
+	cert_request_pem = tls_cert_request.server_dc2_cert.cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}
+
+# API DC2 Certificates
+resource "tls_private_key" "client_api_dc2_key" {
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256"
+}
+
+## Public API DC2 Cert
+resource "tls_cert_request" "client_api_dc2_cert" {
+	key_algorithm = tls_private_key.client_api_dc2_key.algorithm
+	private_key_pem = tls_private_key.client_api_dc2_key.private_key_pem
+
+	subject {
+		common_name = "api.dc2.consul"
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"api.dc2.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Signed Public API DC2 Certificate
+resource "tls_locally_signed_cert" "client_api_dc2_signed_cert" {
+	cert_request_pem = tls_cert_request.client_api_dc2_cert.cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}
+
+# Consul Mesh Gateway DC2 Certificates
+resource "tls_private_key" "mesh_gateway_dc2_key" {
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256"
+}
+
+## Public Mesh Gateway DC2 Cert
+resource "tls_cert_request" "mesh_gateway_dc2_cert" {
+	key_algorithm = tls_private_key.mesh_gateway_dc2_key.algorithm
+	private_key_pem = tls_private_key.mesh_gateway_dc2_key.private_key_pem
+
+	subject {
+		common_name = "mesh.dc2.consul"
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"mesh.dc2.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Signed Public Mesh Gateway DC2 Certificate
+resource "tls_locally_signed_cert" "mesh_gateway_dc2_signed_cert" {
+	cert_request_pem = tls_cert_request.mesh_gateway_dc2_cert.cert_request_pem
 
 	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
 	ca_key_algorithm = tls_private_key.ca_key.algorithm
