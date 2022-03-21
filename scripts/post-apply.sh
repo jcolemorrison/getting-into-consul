@@ -82,44 +82,66 @@ done
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
-TM_SERVICE_TOKEN = $(consul acl token create -service-identity="tm:dc1" -format=json)
+# Create the ACL for Terminating Gateway
+cat > `pwd -P`/files/terminating-gateway-acl.hcl <<- EOF
+service "database" {
+	policy = "write"
+}
+service "tm" {
+	policy = "write"
+}
+service "tm-sidecar-proxy" {
+	policy = "write"
+}
+service_prefix "" {
+	policy = "read"
+}
+node_prefix "" {
+	policy = "read"
+}
+EOF
 
-echo "client_tm_service_token = \"$($TM_SERVICE_TOKEN | jq -r .SecretID)\"" >> tokens.txt
+TM_POLICY_ID=$(consul acl policy create -name "terminating-gateway-db" -description "defaults and allow database service write access" -rules @`pwd -P`/files/terminating-gateway-acl.hcl -valid-datacenter dc1 -format json | jq -r .ID)
+
+# Terminating Gateway Service Token
+echo "client_tm_service_token = \"$(consul acl token create -service-identity="tm:dc1" -policy-id="$TM_POLICY_ID" -format=json | jq -r .SecretID)\"" >> tokens.txt
+
+# Ingress Gateway Service Token
 echo "client_ig_service_token = \"$(consul acl token create -service-identity="ig:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Values for the Metrics Module - yes, this is a lot.  Done, because we can't grab the necesseary IPs
 # of consul servers until the root module is completely deployed.
-export MAIN_TAG=$(terraform output -raw main_project_tag)
-export VPC_ID=$(terraform output -raw vpc_id)
-export VPC_PRIVATE_SUBNET_IDS=$(terraform output -json vpc_private_subnet_ids)
-export VPC_PUBLIC_SUBNET_IDS=$(terraform output -json vpc_public_subnet_ids)
-export EC2_KEY_PAIR_NAME=$(terraform output -raw ec2_key_pair_name)
-export BASTION_SECURITY_GROUP_ID=$(terraform output -raw bastion_security_group_id)
-export CONSUL_SERVER_SECURITY_GROUP_ID=$(terraform output -raw consul_server_security_group_id)
-export CONSUL_CLIENT_SECURITY_GROUP_ID=$(terraform output -raw consul_client_security_group_id)
-export CONSUL_TOKEN=$(terraform output -raw consul_token)
+# export MAIN_TAG=$(terraform output -raw main_project_tag)
+# export VPC_ID=$(terraform output -raw vpc_id)
+# export VPC_PRIVATE_SUBNET_IDS=$(terraform output -json vpc_private_subnet_ids)
+# export VPC_PUBLIC_SUBNET_IDS=$(terraform output -json vpc_public_subnet_ids)
+# export EC2_KEY_PAIR_NAME=$(terraform output -raw ec2_key_pair_name)
+# export BASTION_SECURITY_GROUP_ID=$(terraform output -raw bastion_security_group_id)
+# export CONSUL_SERVER_SECURITY_GROUP_ID=$(terraform output -raw consul_server_security_group_id)
+# export CONSUL_CLIENT_SECURITY_GROUP_ID=$(terraform output -raw consul_client_security_group_id)
+# export CONSUL_TOKEN=$(terraform output -raw consul_token)
 
 # Retrieve Consul Server Private IP
-export CONSUL_SERVER_ASG_NAME=$(terraform output -raw asg_consul_server_name)
+# export CONSUL_SERVER_ASG_NAME=$(terraform output -raw asg_consul_server_name)
 # TODO - account for multiple server IPs
-SERVER_INSTANCE_IP=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
-	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-			--query "AutoScalingInstances[?AutoScalingGroupName=='$CONSUL_SERVER_ASG_NAME'].InstanceId") \
---query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
+# SERVER_INSTANCE_IP=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
+# 	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
+# 			--query "AutoScalingInstances[?AutoScalingGroupName=='$CONSUL_SERVER_ASG_NAME'].InstanceId") \
+# --query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
 
 # Append Terraform Variables for the Metrics Module
-cat > `pwd -P`/metrics_module/terraform.tfvars <<- EOF
-main_project_tag = "${MAIN_TAG}"
-vpc_id = "${VPC_ID}"
-vpc_private_subnet_ids = ${VPC_PRIVATE_SUBNET_IDS}
-vpc_public_subnet_ids = ${VPC_PUBLIC_SUBNET_IDS}
-ec2_key_pair_name = "${EC2_KEY_PAIR_NAME}"
-bastion_security_group_id = "${BASTION_SECURITY_GROUP_ID}"
-consul_server_security_group_id = "${CONSUL_SERVER_SECURITY_GROUP_ID}"
-consul_client_security_group_id = "${CONSUL_CLIENT_SECURITY_GROUP_ID}"
-consul_server_ip = "${SERVER_INSTANCE_IP}"
-consul_token = "${CONSUL_TOKEN}"
-EOF
+# cat > `pwd -P`/metrics_module/terraform.tfvars <<- EOF
+# main_project_tag = "${MAIN_TAG}"
+# vpc_id = "${VPC_ID}"
+# vpc_private_subnet_ids = ${VPC_PRIVATE_SUBNET_IDS}
+# vpc_public_subnet_ids = ${VPC_PUBLIC_SUBNET_IDS}
+# ec2_key_pair_name = "${EC2_KEY_PAIR_NAME}"
+# bastion_security_group_id = "${BASTION_SECURITY_GROUP_ID}"
+# consul_server_security_group_id = "${CONSUL_SERVER_SECURITY_GROUP_ID}"
+# consul_client_security_group_id = "${CONSUL_CLIENT_SECURITY_GROUP_ID}"
+# consul_server_ip = "${SERVER_INSTANCE_IP}"
+# consul_token = "${CONSUL_TOKEN}"
+# EOF
 
 # Set up for the Database
 export DB_PRIVATE_IP=$(terraform output -raw database_private_ip)
@@ -147,21 +169,8 @@ cat > `pwd -P`/files/database.json <<- EOF
 }
 EOF
 
-# Create the ACL for Terminating Gateway
-cat > `pwd -P`/files/database-acl.hcl <<- EOF
-service "database" {
-	policy = "write"
-}
-EOF
-
 # Register the database service
-curl --request PUT -H "X-Consul-Token:$CONSUL_HTTP_TOKEN" --data @`pwd -P`/files/database.json $CONSUL_HTTP_ADDR:8500/v1/catalog/register
-
-# Create the database ACL policy
-consul acl policy create -name "terminating-gateway-db" -description "allow database service write access" -rules @`pwd -P`/files/database-acl.hcl -valid-datacenter dc1
-
-# Attach the database ACL policy to the Terminating Gateway token
-consul acl token update -id $($TM_SERVICE_TOKEN | jq -r .AccessorID) -policy-name "terminating-gateway-db" -merge-policies
+curl --request PUT -H "X-Consul-Token:$CONSUL_HTTP_TOKEN" --data @`pwd -P`/files/database.json "$CONSUL_HTTP_ADDR/v1/catalog/register"
 
 # User Setup Messages
 echo ""
