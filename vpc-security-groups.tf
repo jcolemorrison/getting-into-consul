@@ -437,7 +437,6 @@ resource "aws_security_group_rule" "terminating_gateway_allow_8443" {
   description              = "Allow connections from other proxies in the mesh."
 }
 
-
 ## Terminating Gateway Load Balancer SG
 resource "aws_security_group" "terminating_gateway_load_balancer" {
   name_prefix = "${var.main_project_tag}-tm-alb-sg"

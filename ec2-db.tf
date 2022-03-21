@@ -19,6 +19,8 @@ resource "aws_instance" "database" {
   subnet_id                   = aws_subnet.db_private[0].id
   key_name                    = var.ec2_key_pair_name
 
+  iam_instance_profile = aws_iam_instance_profile.consul_instance_profile.name
+
   user_data = base64encode(templatefile("${path.module}/scripts/database.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag

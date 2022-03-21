@@ -139,7 +139,17 @@ config_entries {
           ]
         }
       ]
-    }
+    },
+    {
+      Kind = "service-intentions"
+      Name = "api"
+      Sources = [
+        {
+          Name = "ig"
+          Action = "allow"
+        }
+      ]
+    },
   ]
 }
 EOF
