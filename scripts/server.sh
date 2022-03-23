@@ -99,6 +99,10 @@ config_entries {
         {
           Name = "web"
           Action = "allow"
+        },
+        {
+          Name = "ig"
+          Action = "allow"
         }
       ]
     },
@@ -139,17 +143,7 @@ config_entries {
           ]
         }
       ]
-    },
-    {
-      Kind = "service-intentions"
-      Name = "api"
-      Sources = [
-        {
-          Name = "ig"
-          Action = "allow"
-        }
-      ]
-    },
+    }
   ]
 }
 EOF

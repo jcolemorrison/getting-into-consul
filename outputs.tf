@@ -8,6 +8,11 @@ output "web_server" {
   description = "DNS name of AWS ALB for the fake web service"
 }
 
+output "ingress_gateway_dns" {
+	value = aws_lb.alb_ingress_gateway.dns_name
+  description = "DNS name of AWS ALB for the Ingress Gateway service"
+}
+
 output "bastion_ip" {
   value       = aws_instance.bastion.public_ip
   description = "Public IP address of bastion"
