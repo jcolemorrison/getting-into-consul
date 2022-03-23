@@ -15,7 +15,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
 - [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
 - [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
-- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
+- **[Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)**
+- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
 ## The Architecture So Far:
 
@@ -142,25 +143,31 @@ There's also another module nested in this repository that will stand up a [prom
 1. Ensure that the above "Getting Started" instructions have been followed. 
 	- including running the `post-apply.sh` script that creates needed variables for the metrics deployment.
 
-2. Navigate to the nested `metrics_module`.
+2. Run the `post-apply-metrics.sh` script:
+
+	```
+	bash scripts/post-apply-metrics.sh
+	```
+
+3. Navigate to the nested `metrics_module`.
 
 	```
 	cd metrics_module/
 	```
 
-3. Initialize the nested Terraform Module:
+4. Initialize the nested Terraform Module:
 
 	```
 	terraform init
 	```
 
-4. Deploy it:
+5. Deploy it:
 
 	```
 	terraform apply
 	```
 
-5. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
+6. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
 
 ### Setting Things Up Manually
 
@@ -173,8 +180,9 @@ Although this repo is set up so that you can get everything working via `terrafo
 5. Follow the Steps on this README to get to Part 6
 6. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
 7. [From Part 7 to Part 8 Manual Steps](part-8-manual-steps.md)
-7. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
+8. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
 	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-9-manual) to follow these.
+9. [From Part 9 to Part 10 Manual Steps](part-10-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
