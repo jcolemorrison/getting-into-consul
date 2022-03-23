@@ -131,6 +131,7 @@ resource "aws_lb_target_group" "alb_targets_ingress_gateway" {
   target_type          = "instance"
 
   # https://www.consul.io/api-docs/health
+  # TODO: Add proper health check for ingress gateway.  Right now this returns 404 with and without /health.
   health_check {
     enabled             = true
     interval            = 10
@@ -157,59 +158,5 @@ resource "aws_lb_listener" "alb_http_ig" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.alb_targets_ingress_gateway.arn
-  }
-}
-
-## Application Load Balancer - Terminating Gateway
-resource "aws_lb" "alb_terminating_gateway" {
-  name_prefix        = "csult-" # 6 character length
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.terminating_gateway_load_balancer.id]
-  subnets            = aws_subnet.private.*.id
-  idle_timeout       = 60
-  internal = true
-
-  tags = merge(
-    { "Name" = "${var.main_project_tag}-alb-tm" },
-    { "Project" = var.main_project_tag }
-  )
-}
-
-## Target Group
-resource "aws_lb_target_group" "alb_targets_terminating_gateway" {
-  name_prefix          = "csult-"
-  port                 = 9090
-  protocol             = "HTTP"
-  vpc_id               = aws_vpc.consul.id
-  deregistration_delay = 30
-  target_type          = "instance"
-
-  # https://www.consul.io/api-docs/health
-  health_check {
-    enabled             = true
-    interval            = 10
-    path                = "/health" // the consul API health port?
-    protocol            = "HTTP"    // switch to HTTPS?
-    timeout             = 5
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-    matcher             = "200"
-  }
-
-  tags = merge(
-    { "Name" = "${var.main_project_tag}-tg-tm" },
-    { "Project" = var.main_project_tag }
-  )
-}
-
-## Default HTTP listener
-resource "aws_lb_listener" "alb_http_tm" {
-  load_balancer_arn = aws_lb.alb_terminating_gateway.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.alb_targets_terminating_gateway.arn
   }
 }

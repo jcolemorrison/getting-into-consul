@@ -229,8 +229,6 @@ resource "aws_autoscaling_group" "terminating_gateway" {
     version = aws_launch_template.terminating_gateway.latest_version
   }
 
-  target_group_arns = [aws_lb_target_group.alb_targets_terminating_gateway.arn]
-
 	desired_capacity = var.terminating_gateway_desired_count
   min_size = var.terminating_gateway_min_count
   max_size = var.terminating_gateway_max_count

@@ -437,48 +437,6 @@ resource "aws_security_group_rule" "terminating_gateway_allow_8443" {
   description              = "Allow connections from other proxies in the mesh."
 }
 
-## Terminating Gateway Load Balancer SG
-resource "aws_security_group" "terminating_gateway_load_balancer" {
-  name_prefix = "${var.main_project_tag}-tm-alb-sg"
-  description = "Firewall for the application load balancer fronting the terminating gateway."
-  vpc_id      = aws_vpc.consul.id
-  tags = merge(
-    { "Name" = "${var.main_project_tag}-tm-alb-sg" },
-    { "Project" = var.main_project_tag }
-  )
-}
-
-resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_80" {
-  security_group_id = aws_security_group.terminating_gateway_load_balancer.id
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 80
-  to_port           = 80
-  cidr_blocks       = [var.vpc_cidr]
-  description       = "Allow HTTP traffic internal to the VPC."
-}
-
-resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_443" {
-  security_group_id = aws_security_group.terminating_gateway_load_balancer.id
-  type              = "ingress"
-  protocol          = "tcp"
-  from_port         = 443
-  to_port           = 443
-  cidr_blocks       = [var.vpc_cidr]
-  description       = "Allow HTTPS traffic internal to the VPC."
-}
-
-resource "aws_security_group_rule" "terminating_gateway_load_balancer_allow_outbound" {
-  security_group_id = aws_security_group.terminating_gateway_load_balancer.id
-  type              = "egress"
-  protocol          = "-1"
-  from_port         = 0
-  to_port           = 0
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = length(var.allowed_traffic_cidr_blocks_ipv6) > 0 ? ["::/0"] : null
-  description       = "Allow any outbound traffic."
-}
-
 ## Database Bastion SG
 resource "aws_security_group" "db_bastion" {
   name_prefix = "${var.main_project_tag}-db-bastion-sg"
