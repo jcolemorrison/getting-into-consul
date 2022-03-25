@@ -15,6 +15,7 @@ This repo is split into branches, each representing a part in the series:
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
 - [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
 - [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
+- [Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)**
 - **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
@@ -75,31 +76,19 @@ To set use this repo, take the following steps:
 	1. Add the `client_api_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
 	2. Add the `client_api_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
 	3. Add the `client_api_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul` and the `api` service:
+	4. Restart both `consul`, `api`, and `consul-envoy` service:
 		```sh
+    sudo systemctl daemon-reload
 		sudo systemctl restart consul
 		sudo systemctl restart api
-		sudo systemctl daemon-reload
 		sudo systemctl restart consul-envoy
 		```
 
-10. SSH into your Bastion and then into your `getting-into-consul-api-v2` nodes...
-	1. Add the `client_api_v2_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	2. Add the `client_api_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
-	3. Add the `client_api_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul` and the `api` service:
-		```sh
-		sudo systemctl restart consul
-		sudo systemctl restart api
-		sudo systemctl daemon-reload
-		sudo systemctl restart consul-envoy
-		```
-
-11. SSH into your Bastion and then into your `getting-into-consul-web` nodes...
+10. SSH into your Bastion and then into your `getting-into-consul-web` nodes...
 	1. Add the `client_web_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
 	2. Add the `client_web_service_token` from `tokens.txt` to the `/etc/consul.d/web.hcl` file in the service.token block.
 	3. Add the `client_web_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul` and the `web` service:
+	4. Restart both `consul`, `web`, and `consul-envoy` service:
 		```sh
 		sudo systemctl restart consul
 		sudo systemctl restart web
@@ -107,32 +96,45 @@ To set use this repo, take the following steps:
 		sudo systemctl restart consul-envoy
 		```
 
-12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
+11. SSH into your Bastion and then into your `getting-into-consul-terminating-gateway` nodes...
+	1. Add the `client_tm_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
+	2. Add the `client_tm_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
+	3. Restart both `consul` and the `consul-envoy` service:
+		```sh
+		sudo systemctl daemon-reload
+		sudo systemctl restart consul
+		sudo systemctl restart consul-envoy
+		```
+
+12. SSH into your Bastion and then into your `getting-into-consul-ingress-gateway` nodes...
+	1. Add the `client_ig_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
+	2. Add the `client_ig_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
+	3. Restart both `consul` and the `consul-envoy` service:
+		```sh
+		sudo systemctl daemon-reload
+		sudo systemctl restart consul
+		sudo systemctl restart consul-envoy
+		```
+
+13. NOTE on steps 9-12: sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
+
+14. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
-13. To verify everything is working, check out your Consul UI...
+15. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
-	- It shouldn't have any errors
+16. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+	- It should show the upstream `body` of both the `api` server and the external `database` via the terminating gateway.
 
-15. To verify that the Consul `service-intention` has been created to allow traffic from `api` to `web`:
-	1. Head to **Intentions**.
-	2. Verify that an intention exists allowing `web` as the source from the destination of `api`.
-
-16. To verify that the Consul `service-resolver` and `service-splitter` have been created to differentiate between `api` and `api-v2`:
-	1. Head to **Services**.
-	2. Select the `api` service.
-	3. Click on the **Routing** tab.
-	4. Confirm that within the **Resolvers** box, you see `v1` and `v2` as resolvers.
-	5. Hover over the connecting lines to see the traffic split percentages from the `service-splitter`.
-
-17. To verify that the Consul `service-router` has been created to split the traffic:
-	1. Head to **Services**.
-	2. Select the `api` service.
-	3. Click on the **Routing** tab.
-	4. Confirm that an **API Router** box exists that sends any traffic with the `x-debug: 1` header to `v2`.
+17. To verify the Ingress Gateway is working run the following on your local machine:
+	```sh
+	curl -i -H "Host: api.ingress.consul" <INGRESS_GATEWAYS_ALB>
+	```
+	- Where `<INGRESS_GATEWAYS_ALB>` is the output DNS Name for your Ingress Gateway's application load balancer.  This is printed in the project terraform outputs as `ingress_gateway_dns`.
+	- It should return the payload from just the API.
+	- If you get a `403` error stating RBAC, go to the Consul console and add an intention to allow `ig` as a "source" for the "destination" `api`.
 
 ### Deploy the Optional Metrics Server
 
@@ -141,25 +143,31 @@ There's also another module nested in this repository that will stand up a [prom
 1. Ensure that the above "Getting Started" instructions have been followed. 
 	- including running the `post-apply.sh` script that creates needed variables for the metrics deployment.
 
-2. Navigate to the nested `metrics_module`.
+2. Run the `post-apply-metrics.sh` script:
+
+	```
+	bash scripts/post-apply-metrics.sh
+	```
+
+3. Navigate to the nested `metrics_module`.
 
 	```
 	cd metrics_module/
 	```
 
-3. Initialize the nested Terraform Module:
+4. Initialize the nested Terraform Module:
 
 	```
 	terraform init
 	```
 
-4. Deploy it:
+5. Deploy it:
 
 	```
 	terraform apply
 	```
 
-5. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
+6. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
 
 ### Setting Things Up Manually
 
@@ -172,8 +180,9 @@ Although this repo is set up so that you can get everything working via `terrafo
 5. Follow the Steps on this README to get to Part 6
 6. [From Part 6 to Part 7 Manual Steps](part-7-manual-steps.md)
 7. [From Part 7 to Part 8 Manual Steps](part-8-manual-steps.md)
-7. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
+8. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
 	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-9-manual) to follow these.
+9. [From Part 9 to Part 10 Manual Steps](part-10-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 

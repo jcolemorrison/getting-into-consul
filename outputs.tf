@@ -44,11 +44,6 @@ output "asg_api_dc2_name" {
 	description = "Name of the API AutoScaling Group in dc2"
 }
 
-# output "asg_api_v2_name" {
-# 	value = aws_autoscaling_group.consul_client_api_v2.name
-# 	description = "Name of the API v2 AutoScaling Group"
-# }
-
 output "asg_web_name" {
 	value = aws_autoscaling_group.consul_client_web.name
 	description = "Name of the Web AutoScaling Group"

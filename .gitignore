@@ -15,3 +15,4 @@ metrics_module/terraform.tfvars
 metrics_module/terraform.tfstate
 metrics_module/terraform.tfstate.backup
 metrics_module/.terraform.lock.hcl
+files/
