@@ -25,6 +25,13 @@ resource "aws_route" "requester_peering_route" {
   vpc_peering_connection_id = aws_vpc_peering_connection.dc2.id
 }
 
+## Peering Connection Routes for the DC2 Route Table
+resource "aws_route" "requester_peering_route_dc2" {
+  route_table_id = aws_route_table.dc2_public.id
+  destination_cidr_block = aws_vpc.consul.cidr_block
+  vpc_peering_connection_id = aws_vpc_peering_connection.dc2.id
+}
+
 ## Research why? Why is the main route table needed?
 resource "aws_route" "requester_peering_route_private" {
   route_table_id = aws_vpc.consul.main_route_table_id

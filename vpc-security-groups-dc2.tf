@@ -176,6 +176,16 @@ resource "aws_security_group_rule" "consul_server_dc2_allow_server_8300" {
   description              = "Allow RPC traffic from Consul Server to Server in DC2.  For client and server agents to send and receive data stored in Consul."
 }
 
+resource "aws_security_group_rule" "consul_server_dc2_allow_server_8302" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8302
+  to_port                  = 8302
+  source_security_group_id = aws_security_group.consul_server_dc2.id
+  description              = "Allow RPC traffic from Consul Server to Server in DC2.  For client and server agents to send and receive data stored in Consul."
+}
+
 resource "aws_security_group_rule" "consul_server_dc2_allow_22_bastion" {
   security_group_id        = aws_security_group.consul_server_dc2.id
   type                     = "ingress"
@@ -298,6 +308,17 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc2_8443" {
   protocol          = "tcp"
   from_port         = 8443
   to_port           = 8443
+  # TODO: constrain this to the specific CIDR of the other mesh gateway
+  cidr_blocks       = [var.vpc_cidr]
+  description       = "TODO"
+}
+
+resource "aws_security_group_rule" "consul_server_dc2_allow_dc2_8500" {
+  security_group_id = aws_security_group.consul_server_dc2.id
+  type              = "ingress"
+  protocol          = "tcp"
+  from_port         = 8500
+  to_port           = 8500
   # TODO: constrain this to the specific CIDR of the other mesh gateway
   cidr_blocks       = [var.vpc_cidr]
   description       = "TODO"
