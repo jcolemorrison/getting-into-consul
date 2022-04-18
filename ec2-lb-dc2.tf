@@ -40,6 +40,13 @@ resource "aws_lb_target_group" "alb_targets_dc2" {
   )
 }
 
+resource "aws_lb_target_group_attachment" "alb_targets_attachment_dc2" {
+  count = var.server_desired_count_dc2
+  target_group_arn = aws_lb_target_group.alb_targets_dc2.arn
+  target_id        = aws_instance.consul_server_dc2[count.index].id
+  port             = 8500
+}
+
 ## Default HTTP listener
 resource "aws_lb_listener" "alb_http_dc2" {
   load_balancer_arn = aws_lb.alb_dc2.arn

@@ -105,7 +105,7 @@ resource "aws_subnet" "dc2_public" {
   count = var.vpc_public_subnet_count_dc2
 
   vpc_id                  = aws_vpc.dc2.id
-  cidr_block              = cidrsubnet(aws_vpc.dc2.cidr_block, 4, count.index)
+  cidr_block              = local.public_cidr_blocks_dc2[count.index]
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
 
@@ -126,7 +126,7 @@ resource "aws_subnet" "dc2_private" {
   vpc_id = aws_vpc.dc2.id
 
   // Increment the netnum by the number of public subnets to avoid overlap
-  cidr_block        = cidrsubnet(aws_vpc.dc2.cidr_block, 4, count.index + var.vpc_public_subnet_count_dc2)
+  cidr_block        = local.private_cidr_blocks_dc2[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = merge(
