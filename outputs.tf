@@ -29,11 +29,6 @@ output "consul_token" {
   sensitive   = true
 }
 
-output "asg_consul_server_name" {
-	value = aws_autoscaling_group.consul_server.name
-	description = "Name of the Consul Server AutoScaling Group"
-}
-
 output "asg_api_name" {
 	value = aws_autoscaling_group.consul_client_api.name
 	description = "Name of the API AutoScaling Group"

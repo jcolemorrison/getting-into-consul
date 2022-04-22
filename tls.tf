@@ -25,14 +25,16 @@ resource "tls_self_signed_cert" "ca_cert" {
 
 # Server Certificates
 resource "tls_private_key" "server_key" {
+	count = var.server_desired_count
 	algorithm = "ECDSA"
 	ecdsa_curve = "P256" # blargh, need better than NIST
 }
 
 ## Public Server Cert
 resource "tls_cert_request" "server_cert" {
-	key_algorithm = tls_private_key.server_key.algorithm
-	private_key_pem = tls_private_key.server_key.private_key_pem
+	count = var.server_desired_count
+	key_algorithm = tls_private_key.server_key[count.index].algorithm
+	private_key_pem = tls_private_key.server_key[count.index].private_key_pem
 
 	subject {
 		common_name = "server.dc1.consul" # dc1 is the default data center name we used
@@ -41,6 +43,7 @@ resource "tls_cert_request" "server_cert" {
 
 	dns_names = [
 		"server.dc1.consul",
+		"${local.server_private_hostnames[count.index]}.server.dc1.consul",
 		"localhost"
 	]
 
@@ -49,7 +52,52 @@ resource "tls_cert_request" "server_cert" {
 
 ## Signed Public Server Certificate
 resource "tls_locally_signed_cert" "server_signed_cert" {
-	cert_request_pem = tls_cert_request.server_cert.cert_request_pem
+	count = var.server_desired_count
+	cert_request_pem = tls_cert_request.server_cert[count.index].cert_request_pem
+
+	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
+	ca_key_algorithm = tls_private_key.ca_key.algorithm
+	ca_cert_pem = tls_self_signed_cert.ca_cert.cert_pem
+
+	allowed_uses = [
+		"digital_signature",
+		"key_encipherment"
+	]
+
+	validity_period_hours = 8760
+}
+
+# Server Certificates DC2
+resource "tls_private_key" "server_key_dc2" {
+	count = var.server_desired_count_dc2
+	algorithm = "ECDSA"
+	ecdsa_curve = "P256" # blargh, need better than NIST
+}
+
+## Public Server Cert DC2
+resource "tls_cert_request" "server_cert_dc2" {
+	count = var.server_desired_count_dc2
+	key_algorithm = tls_private_key.server_key_dc2[count.index].algorithm
+	private_key_pem = tls_private_key.server_key_dc2[count.index].private_key_pem
+
+	subject {
+		common_name = "server.dc2.consul"
+		organization = "HashiCorp Inc."
+	}
+
+	dns_names = [
+		"server.dc2.consul",
+		"${local.server_private_hostnames_dc2[count.index]}.server.dc2.consul",
+		"localhost"
+	]
+
+	ip_addresses = ["127.0.0.1"]
+}
+
+## Signed Public Server Certificate DC2
+resource "tls_locally_signed_cert" "server_signed_cert_dc2" {
+	count = var.server_desired_count_dc2
+	cert_request_pem = tls_cert_request.server_cert_dc2[count.index].cert_request_pem
 
 	ca_private_key_pem = tls_private_key.ca_key.private_key_pem
 	ca_key_algorithm = tls_private_key.ca_key.algorithm

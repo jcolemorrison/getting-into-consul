@@ -35,8 +35,8 @@ resource "aws_instance" "consul_server" {
     BOOTSTRAP_NUMBER = var.server_desired_count
     GOSSIP_KEY = random_id.gossip_key.b64_std
     CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
-    SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_signed_cert.cert_pem
-    SERVER_PRIVATE_KEY = tls_private_key.server_key.private_key_pem
+    SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_signed_cert[count.index].cert_pem
+    SERVER_PRIVATE_KEY = tls_private_key.server_key[count.index].private_key_pem
     BOOTSTRAP_TOKEN    = random_uuid.consul_bootstrap_token.result
   }))
 

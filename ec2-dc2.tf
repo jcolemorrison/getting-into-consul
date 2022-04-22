@@ -25,14 +25,14 @@ resource "aws_instance" "consul_server_dc2" {
 
   private_ip = local.server_private_ips_dc2[count.index]
 
-  user_data = base64encode(templatefile("${path.module}/scripts/server.sh", {
+  user_data = base64encode(templatefile("${path.module}/scripts/server-dc2.sh", {
     PROJECT_TAG   = "Project"
     PROJECT_VALUE = var.main_project_tag
     BOOTSTRAP_NUMBER = var.server_desired_count_dc2
     GOSSIP_KEY = random_id.gossip_key.b64_std
     CA_PUBLIC_KEY = tls_self_signed_cert.ca_cert.cert_pem
-    SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_signed_cert.cert_pem
-    SERVER_PRIVATE_KEY = tls_private_key.server_key.private_key_pem
+    SERVER_PUBLIC_KEY = tls_locally_signed_cert.server_signed_cert_dc2[count.index].cert_pem
+    SERVER_PRIVATE_KEY = tls_private_key.server_key_dc2[count.index].private_key_pem
     BOOTSTRAP_TOKEN    = random_uuid.consul_bootstrap_token.result
   }))
 

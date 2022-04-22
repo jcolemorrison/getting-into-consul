@@ -217,6 +217,26 @@ resource "aws_security_group" "consul_client_dc2" {
   )
 }
 
+resource "aws_security_group_rule" "consul_client_dc2_allow_8301" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client_dc2.id
+  description              = "Allow gossip traffic from Consul Clients to Consul Clients."
+}
+
+resource "aws_security_group_rule" "consul_client_dc2_allow_mesh_gateway_8301" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow gossip traffic from Mesh Gateway to Consul Clients."
+}
+
 resource "aws_security_group_rule" "consul_client_dc2_allow_8500" {
   security_group_id        = aws_security_group.consul_client_dc2.id
   type                     = "ingress"
@@ -286,6 +306,26 @@ resource "aws_security_group" "mesh_gateway_dc2" {
     { "Name" = "${var.main_project_tag}-mesh-gateways-sg-dc2" },
     { "Project" = var.main_project_tag }
   )
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_mesh_gateway_8301" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow gossip traffic from Mesh Gateway to Mesh Gateway."
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_client_8301" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client_dc2.id
+  description              = "Allow gossip traffic from Mesh Gateway to Mesh Gateway."
 }
 
 # Peering connections require the cidr block since security group ID's won't carry across peered vpcs
