@@ -29,6 +29,10 @@ EOF
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
+datacenter = "dc1"
+
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -49,7 +53,7 @@ acl = {
 
 server = true
 
-bind_addr = "0.0.0.0"
+bind_addr = "$local_ip"
 
 advertise_addr = "$local_ip"
 
@@ -78,6 +82,7 @@ ports {
 
 connect {
   enabled = true
+  enable_mesh_gateway_wan_federation = true
 }
 
 # these are the default settings used for the proxies
@@ -90,6 +95,9 @@ config_entries {
       config {
         protocol                   = "http"
         envoy_prometheus_bind_addr = "0.0.0.0:9102"
+      }
+      mesh_gateway = {
+        mode = "local"
       }
     },
     {

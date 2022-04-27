@@ -33,6 +33,10 @@ EOF
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
+datacenter = "dc1"
+
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -89,7 +93,7 @@ After=syslog.target network.target
 
 # Put mesh gateway service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=mesh-gateway -token=mesh_gateway_service_token
+ExecStart=/usr/bin/consul connect envoy -gateway=mesh -register -service "meshgateway" -address "{{GetPrivateIP}}:8443" -wan-address "{{GetPrivateIP}}:8443" -expose-servers -token=mesh_gateway_service_token
 ExecStop=/bin/sleep 5
 Restart=always
 

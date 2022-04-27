@@ -31,6 +31,8 @@ EOF
 cat > /etc/consul.d/consul.hcl <<- EOF
 datacenter = "dc2"
 
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -43,15 +45,17 @@ acl = {
   enabled = true
   default_policy = "deny"
   enable_token_persistence = true
+  enable_token_replication = true
   tokens = {
     master = "${BOOTSTRAP_TOKEN}"
     agent = "${BOOTSTRAP_TOKEN}"
+    replication = "" ## add acl replication token
   }
 }
 
 server = true
 
-bind_addr = "0.0.0.0"
+bind_addr = "$local_ip"
 
 advertise_addr = "$local_ip"
 
@@ -80,7 +84,10 @@ ports {
 
 connect {
   enabled = true
+  enable_mesh_gateway_wan_federation = true
 }
+
+primary_gateways = ["${PRIMARY_GATEWAY_IP_ADDRESS}:8443"]
 
 # these are the default settings used for the proxies
 # the equivalent for services is "service-defaults" in the "kind" argument
@@ -93,10 +100,10 @@ config_entries {
         protocol                   = "http"
         envoy_prometheus_bind_addr = "0.0.0.0:9102"
       }
+      mesh_gateway = {
+        mode = "local"
+      }
     }
   ]
 }
 EOF
-
-# Start Consul
-sudo systemctl start consul

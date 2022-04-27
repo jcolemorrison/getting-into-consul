@@ -10,6 +10,7 @@ peers.json
 tokens.auto.tfvars
 tokens.txt
 tokens-dc2.txt
+tokens-acl.txt
 metrics_module/.terraform
 metrics_module/terraform.tfvars
 metrics_module/terraform.tfstate

@@ -35,6 +35,8 @@ EOF
 cat > /etc/consul.d/consul.hcl <<- EOF
 datacenter = "dc2"
 
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -81,9 +83,6 @@ telemetry {
 }
 EOF
 
-# Start Consul
-sudo systemctl start consul
-
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
 [Unit]
 Description=Consul Envoy
@@ -91,17 +90,13 @@ After=syslog.target network.target
 
 # Put mesh gateway DC2 service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=mesh-gateway-dc2 -token=mesh_gateway_dc2_service_token
+ExecStart=/usr/bin/consul connect envoy -gateway=mesh -register -service "meshgateway-dc2" -address "{{GetPrivateIP}}:8443" -wan-address "{{GetPrivateIP}}:8443" -expose-servers -token=mesh_gateway_dc2_service_token
 ExecStop=/bin/sleep 5
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
 EOF
-
-systemctl daemon-reload
-# TODO: Start this!
-# systemctl start consul-envoy
 
 mkdir -p /etc/systemd/resolved.conf.d
 

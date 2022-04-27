@@ -35,6 +35,8 @@ EOF
 cat > /etc/consul.d/consul.hcl <<- EOF
 datacenter = "dc2"
 
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -81,9 +83,6 @@ telemetry {
 }
 EOF
 
-# Start Consul
-sudo systemctl start consul
-
 # Pull down and install Fake Service
 curl -LO https://github.com/nicholasjackson/fake-service/releases/download/v0.22.7/fake_service_linux_amd64.zip
 unzip fake_service_linux_amd64.zip
@@ -106,10 +105,6 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-
-# Reload unit files and start the API
-systemctl daemon-reload
-systemctl start api
 
 # Consul Config file for our fake API service
 cat > /etc/consul.d/api.hcl <<- EOF
@@ -143,8 +138,6 @@ service {
 }
 EOF
 
-systemctl restart consul
-
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
 [Unit]
 Description=Consul Envoy
@@ -159,9 +152,6 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-
-systemctl daemon-reload
-systemctl start consul-envoy
 
 mkdir -p /etc/systemd/resolved.conf.d
 
