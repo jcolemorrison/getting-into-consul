@@ -7,12 +7,12 @@ echo "Hello Consul Client API!"
 # 2 - a default systemd consul.service file
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update && apt install -y consul=1.11.3 unzip
+apt update && apt install -y consul=1.12.0-1 unzip
 
 # Install Envoy
 curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
-func-e use 1.18.4
-cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin
+func-e use 1.21.2
+cp /root/.func-e/versions/1.21.2/bin/envoy /usr/local/bin
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -66,6 +66,7 @@ key_file = "/etc/consul.d/certs/client-key.pem"
 acl = {
   enabled = true
   default_policy = "deny"
+  down_policy = "extend-cache"
   enable_token_persistence = true
 
   tokens {

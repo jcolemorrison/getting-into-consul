@@ -74,8 +74,8 @@ To set use this repo, take the following steps:
 
 9. SSH into `bastion` and then into your `getting-into-consul-mesh-gateway` node...
 	1. Add the `mesh_gateway_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	3. Add the `mesh_gateway_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul` and `consul-envoy` service:
+	2. Add the `mesh_gateway_service_token` from `tokens.txt` to the `/etc/consul.d/tokens/gateway`.
+	3. Restart both `consul` and `consul-envoy` service:
        ```sh
        sudo systemctl daemon-reload
        sudo systemctl restart consul consul-envoy
@@ -115,8 +115,8 @@ To set use this repo, take the following steps:
 
 12. SSH into `bastion-dc2` and then into your `getting-into-consul-mesh-gateway-dc2` node...
 	1. Add the `mesh_gateway_node_id_token` from `tokens-dc2.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	3. Add the `mesh_gateway_service_token` from `tokens-dc2.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul` and `consul-envoy` service:
+	2. Add the `mesh_gateway_service_token` from `tokens.txt` to the `/etc/consul.d/tokens/gateway`.
+	3. Restart both `consul` and `consul-envoy` service:
        ```sh
        sudo systemctl daemon-reload
        sudo systemctl restart consul consul-envoy

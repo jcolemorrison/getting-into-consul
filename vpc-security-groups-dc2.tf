@@ -136,10 +136,20 @@ resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8500" {
   description              = "Allow HTTP traffic from Consul mesh gateway."
 }
 
-resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8301" {
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8301_tcp" {
   security_group_id        = aws_security_group.consul_server_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow LAN gossip traffic from Consul Mesh Gateway to Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8301_udp" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
   from_port                = 8301
   to_port                  = 8301
   source_security_group_id = aws_security_group.mesh_gateway_dc2.id
@@ -156,10 +166,20 @@ resource "aws_security_group_rule" "consul_server_allow_mesh_gateway_dc2_8300" {
   description              = "Allow RPC traffic from Consul Mesh Gateway to Server.  For mesh gateway and server agents to send and receive data stored in Consul."
 }
 
-resource "aws_security_group_rule" "consul_server_dc2_allow_server_8301" {
+resource "aws_security_group_rule" "consul_server_dc2_allow_server_8301_tcp" {
   security_group_id        = aws_security_group.consul_server_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_server_dc2.id
+  description              = "Allow LAN gossip traffic from Consul Server to Server in DC2.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_dc2_allow_server_8301_udp" {
+  security_group_id        = aws_security_group.consul_server_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
   from_port                = 8301
   to_port                  = 8301
   source_security_group_id = aws_security_group.consul_server_dc2.id
@@ -257,7 +277,7 @@ resource "aws_security_group" "consul_client_dc2" {
   )
 }
 
-resource "aws_security_group_rule" "consul_client_dc2_allow_8301" {
+resource "aws_security_group_rule" "consul_client_dc2_allow_8301_tcp" {
   security_group_id        = aws_security_group.consul_client_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
@@ -267,10 +287,30 @@ resource "aws_security_group_rule" "consul_client_dc2_allow_8301" {
   description              = "Allow gossip traffic from Consul Clients to Consul Clients."
 }
 
-resource "aws_security_group_rule" "consul_client_dc2_allow_mesh_gateway_8301" {
+resource "aws_security_group_rule" "consul_client_dc2_allow_8301_udp" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client_dc2.id
+  description              = "Allow gossip traffic from Consul Clients to Consul Clients."
+}
+
+resource "aws_security_group_rule" "consul_client_dc2_allow_mesh_gateway_8301_tcp" {
   security_group_id        = aws_security_group.consul_client_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow gossip traffic from Mesh Gateway to Consul Clients."
+}
+
+resource "aws_security_group_rule" "consul_client_dc2_allow_mesh_gateway_8301_udp" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
   from_port                = 8301
   to_port                  = 8301
   source_security_group_id = aws_security_group.mesh_gateway_dc2.id
@@ -358,7 +398,7 @@ resource "aws_security_group" "mesh_gateway_dc2" {
   )
 }
 
-resource "aws_security_group_rule" "mesh_gateway_dc2_allow_mesh_gateway_8301" {
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_mesh_gateway_8301_tcp" {
   security_group_id        = aws_security_group.mesh_gateway_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
@@ -368,7 +408,17 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_mesh_gateway_8301" {
   description              = "Allow gossip traffic from Mesh Gateway to Mesh Gateway."
 }
 
-resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_server_8301" {
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_mesh_gateway_8301_udp" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.mesh_gateway_dc2.id
+  description              = "Allow gossip traffic from Mesh Gateway to Mesh Gateway."
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_server_8301_tcp" {
   security_group_id        = aws_security_group.mesh_gateway_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
@@ -378,10 +428,30 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_server_8301" {
   description              = "Allow gossip traffic from Consul Server to Mesh Gateway."
 }
 
-resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_client_8301" {
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_server_8301_udp" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_server_dc2.id
+  description              = "Allow gossip traffic from Consul Server to Mesh Gateway."
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_client_8301_tcp" {
   security_group_id        = aws_security_group.mesh_gateway_dc2.id
   type                     = "ingress"
   protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_client_dc2.id
+  description              = "Allow gossip traffic from Consul Client to Mesh Gateway."
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_consul_client_8301_udp" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
   from_port                = 8301
   to_port                  = 8301
   source_security_group_id = aws_security_group.consul_client_dc2.id
