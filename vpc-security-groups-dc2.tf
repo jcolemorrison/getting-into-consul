@@ -297,6 +297,27 @@ resource "aws_security_group_rule" "consul_client_dc2_allow_8301_udp" {
   description              = "Allow gossip traffic from Consul Clients to Consul Clients."
 }
 
+
+resource "aws_security_group_rule" "consul_client_dc2_allow_consul_server_dc2_8301_tcp" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_server_dc2.id
+  description              = "Allow gossip traffic from Consul Server to Consul Clients."
+}
+
+resource "aws_security_group_rule" "consul_client_dc2_allow_consul_server_dc2_8301_udp" {
+  security_group_id        = aws_security_group.consul_client_dc2.id
+  type                     = "ingress"
+  protocol                 = "udp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.consul_server_dc2.id
+  description              = "Allow gossip traffic from Consul Server to Consul Clients."
+}
+
 resource "aws_security_group_rule" "consul_client_dc2_allow_mesh_gateway_8301_tcp" {
   security_group_id        = aws_security_group.consul_client_dc2.id
   type                     = "ingress"
@@ -467,9 +488,8 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8300" {
   protocol          = "tcp"
   from_port         = 8300
   to_port           = 8300
-  # TODO: constrain this to the specific CIDR of the other mesh gateway
-  cidr_blocks = [var.vpc_cidr]
-  description = "TODO"
+  cidr_blocks       = [var.vpc_cidr]
+  description       = "Allow Cross-DC WAN Gossip traffic from Mesh Gateway DC1"
 }
 
 resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8302_tcp" {
@@ -478,9 +498,8 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8302_tcp" {
   protocol          = "tcp"
   from_port         = 8302
   to_port           = 8302
-  # TODO: constrain this to the specific CIDR of the other mesh gateway
-  cidr_blocks = [var.vpc_cidr, var.vpc_cidr_dc2]
-  description = "TODO"
+  cidr_blocks       = [var.vpc_cidr, var.vpc_cidr_dc2]
+  description       = "Allow Intra-DC WAN Gossip from all servers, clients, and mesh gateways"
 }
 
 resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8302_udp" {
@@ -489,21 +508,28 @@ resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8302_udp" {
   protocol          = "udp"
   from_port         = 8302
   to_port           = 8302
-  # TODO: constrain this to the specific CIDR of the other mesh gateway
-  cidr_blocks = [var.vpc_cidr, var.vpc_cidr_dc2]
-  description = "TODO"
+  cidr_blocks       = [var.vpc_cidr, var.vpc_cidr_dc2]
+  description       = "Allow Intra-DC WAN Gossip from all servers, clients, and mesh gateways"
 }
 
-resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8443" {
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc2_8443" {
   security_group_id = aws_security_group.mesh_gateway_dc2.id
   type              = "ingress"
   protocol          = "tcp"
   from_port         = 8443
   to_port           = 8443
-  # TODO: constrain this to the specific CIDR of the other mesh gateway
-  # cidr_blocks = [var.vpc_cidr, var.vpc_cidr_dc2]
-  cidr_blocks = ["0.0.0.0/0"]
-  description = "TODO"
+  cidr_blocks       = [var.vpc_cidr_dc2]
+  description       = "Allow connections from services in DC2 to mesh gateway"
+}
+
+resource "aws_security_group_rule" "mesh_gateway_dc2_allow_dc1_8443" {
+  security_group_id        = aws_security_group.mesh_gateway_dc2.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8443
+  to_port                  = 8443
+  source_security_group_id = aws_security_group.mesh_gateway.id
+  description              = "Allow connections from Mesh Gateway DC1"
 }
 
 resource "aws_security_group_rule" "consul_server_dc2_allow_dc2_8500" {
@@ -512,9 +538,8 @@ resource "aws_security_group_rule" "consul_server_dc2_allow_dc2_8500" {
   protocol          = "tcp"
   from_port         = 8500
   to_port           = 8500
-  # TODO: constrain this to the specific CIDR of the other mesh gateway
-  cidr_blocks = [var.vpc_cidr]
-  description = "TODO"
+  cidr_blocks       = [var.vpc_cidr]
+  description       = "Allow connection from Consul Server in DC1 to Consul Server in DC2"
 }
 
 resource "aws_security_group_rule" "mesh_gateway_dc2_allow_22_bastion" {

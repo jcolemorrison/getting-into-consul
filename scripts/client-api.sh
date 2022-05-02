@@ -84,9 +84,6 @@ telemetry {
 }
 EOF
 
-# Start Consul
-sudo systemctl start consul
-
 # Pull down and install Fake Service
 curl -LO https://github.com/nicholasjackson/fake-service/releases/download/v0.22.7/fake_service_linux_amd64.zip
 unzip fake_service_linux_amd64.zip
@@ -112,7 +109,6 @@ EOF
 
 # Reload unit files and start the API
 systemctl daemon-reload
-systemctl start api
 
 # Consul Config file for our fake API service
 cat > /etc/consul.d/api.hcl <<- EOF
@@ -146,8 +142,6 @@ service {
 }
 EOF
 
-systemctl restart consul
-
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
 [Unit]
 Description=Consul Envoy
@@ -164,7 +158,6 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl start consul-envoy
 
 mkdir -p /etc/systemd/resolved.conf.d
 

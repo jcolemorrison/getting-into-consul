@@ -46,7 +46,7 @@ done
 
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "client_web_service_token = \"$(consul acl token create -service-identity="web" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # Set up for the Mesh Gateway DC1
 export MESH_GATEWAY_PRIVATE_IP=$(terraform output -raw mesh_gateway_private_ip)
