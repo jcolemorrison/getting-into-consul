@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "alb_targets" {
 }
 
 resource "aws_lb_target_group_attachment" "alb_targets_attachment" {
-  count = var.server_desired_count
+  count            = var.server_desired_count
   target_group_arn = aws_lb_target_group.alb_targets.arn
   target_id        = aws_instance.consul_server[count.index].id
   port             = 8500

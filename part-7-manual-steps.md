@@ -71,10 +71,10 @@ _Note: If you're looking part-6 manual instructions, those are just the [README]
   curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
 
   # install a consul supported version of envoy
-  func-e use 1.18.4
+  func-e use 1.21.2
 
   # make the bin available
-  cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin/
+  cp /root/.func-e/versions/1.21.2/bin/envoy /usr/local/bin/
   ```
 
 4. Open the `/etc/consul.d/consul.hcl` file and add the following to the end:
@@ -151,10 +151,10 @@ _Note: If you're looking part-6 manual instructions, those are just the [README]
   curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
 
   # install a consul supported version of envoy
-  func-e use 1.18.4
+  func-e use 1.21.2
 
   # make the bin available
-  cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin/
+  cp /root/.func-e/versions/1.21.2/bin/envoy /usr/local/bin/
   ```
 
 4. Open the `/etc/consul.d/consul.hcl` file and add the following to the end:

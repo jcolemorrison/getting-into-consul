@@ -112,8 +112,8 @@ variable "ami_id" {
 
 variable "use_latest_ami" {
   description = "Whether or not to use the hardcoded ami_id value or to grab the latest value from SSM parameter store."
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "ec2_key_pair_name" {

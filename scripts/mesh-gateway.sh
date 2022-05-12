@@ -7,12 +7,12 @@ echo "Hello Mesh Gateway!"
 # 2 - a default systemd consul.service file
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update && apt install -y consul=1.11.3 unzip
+apt update && apt install -y consul=1.12.0-1 unzip
 
 # Install Envoy
 curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
-func-e use 1.18.4
-cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin
+func-e use 1.21.2
+cp /root/.func-e/versions/1.21.2/bin/envoy /usr/local/bin
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -33,6 +33,10 @@ EOF
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
+datacenter = "dc1"
+
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -62,6 +66,7 @@ key_file = "/etc/consul.d/certs/client-key.pem"
 acl = {
   enabled = true
   default_policy = "deny"
+  down_policy = "extend-cache"
   enable_token_persistence = true
 
   tokens {
@@ -82,6 +87,9 @@ EOF
 # Start Consul
 sudo systemctl start consul
 
+mkdir /etc/consul.d/tokens
+touch /etc/consul.d/tokens/gateway
+
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
 [Unit]
 Description=Consul Envoy
@@ -89,7 +97,7 @@ After=syslog.target network.target
 
 # Put mesh gateway service token here for the -token option!
 [Service]
-ExecStart=/usr/bin/consul connect envoy -sidecar-for=mesh-gateway -token=mesh_gateway_service_token
+ExecStart=/usr/bin/consul connect envoy -gateway=mesh -register -service "meshgateway" -address "{{GetPrivateIP}}:8443" -wan-address "{{GetPrivateIP}}:8443" -expose-servers -token-file /etc/consul.d/tokens/gateway -- -l debug
 ExecStop=/bin/sleep 5
 Restart=always
 

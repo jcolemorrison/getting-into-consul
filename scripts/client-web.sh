@@ -7,12 +7,12 @@ echo "Hello Consul Client Web!"
 # 2 - a default systemd consul.service file
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-apt update && apt install -y consul=1.11.3 unzip
+apt update && apt install -y consul=1.12.0-1 unzip
 
 # Install Envoy
 curl https://func-e.io/install.sh | bash -s -- -b /usr/local/bin
-func-e use 1.18.4
-cp /root/.func-e/versions/1.18.4/bin/envoy /usr/local/bin
+func-e use 1.21.2
+cp /root/.func-e/versions/1.21.2/bin/envoy /usr/local/bin
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -33,6 +33,10 @@ EOF
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
+datacenter = "dc1"
+
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -62,6 +66,7 @@ key_file = "/etc/consul.d/certs/client-key.pem"
 acl = {
   enabled = true
   default_policy = "deny"
+  down_policy = "extend-cache"
   enable_token_persistence = true
 
   tokens {
@@ -78,9 +83,6 @@ telemetry {
   disable_hostname = true
 }
 EOF
-
-# Start Consul
-sudo systemctl start consul
 
 # Pull down and install Fake Service
 curl -LO https://github.com/nicholasjackson/fake-service/releases/download/v0.22.7/fake_service_linux_amd64.zip
@@ -108,7 +110,6 @@ EOF
 
 # Reload unit files and start the API
 systemctl daemon-reload
-systemctl start web
 
 # Consul Config file for our fake API service
 cat > /etc/consul.d/web.hcl <<- EOF
@@ -144,8 +145,6 @@ service {
 }
 EOF
 
-systemctl restart consul
-
 cat > /etc/systemd/system/consul-envoy.service <<- EOF
 [Unit]
 Description=Consul Envoy
@@ -162,7 +161,6 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl start consul-envoy
 
 mkdir -p /etc/systemd/resolved.conf.d
 

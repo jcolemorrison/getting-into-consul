@@ -16,10 +16,9 @@ echo ""
 echo "Creating ACL tokens and setting up values for the optional Metrics deployment..."
 
 # Node Identity Tokens - API
-API_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION --instance-ids \
-	$(aws autoscaling describe-auto-scaling-instances --region us-east-1 --output text \
-			--query "AutoScalingInstances[?AutoScalingGroupName=='$API_ASG_NAME'].InstanceId") \
---query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
+API_INSTANCES=$(aws ec2 describe-instances --region $AWS_REGION \
+	--filters Name=tag:Name,Values=getting-into-consul-api-dc2 \
+	--query "Reservations[].Instances[].PrivateIpAddress" | jq -r '.[]')
 
 API_NODE=0
 for node in $API_INSTANCES
@@ -40,7 +39,7 @@ export MESH_GATEWAY_PRIVATE_IP=$(terraform output -raw mesh_gateway_private_ip_d
 MESH_GATEWAY_HOSTNAME="ip-${MESH_GATEWAY_PRIVATE_IP//./-}"
 
 echo "mesh_gateway_node_id_token = \"$(consul acl token create -node-identity="$MESH_GATEWAY_HOSTNAME:dc2" -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
-echo "mesh_gateway_service_token = \"$(consul acl token create -service-identity="meshgateway:dc1" -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
+echo "mesh_gateway_service_token = \"$(consul acl token create -description "meshgateway:dc2" -policy-name=meshgateway -format=json | jq -r .SecretID)\"" >> tokens-dc2.txt
 
 # User Setup Messages
 echo ""

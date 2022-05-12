@@ -7,8 +7,8 @@ echo "Hello Consul Server!"
 # 2 - a default systemd consul.service file
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
 apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-# change to 1.11.3
-apt update && apt install -y consul=1.11.3
+# change to 1.12.0
+apt update && apt install -y consul=1.12.0-1
 
 # Grab instance IP
 local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
@@ -29,6 +29,10 @@ EOF
 
 # Modify the default consul.hcl file
 cat > /etc/consul.d/consul.hcl <<- EOF
+datacenter = "dc1"
+
+primary_datacenter = "dc1"
+
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
@@ -40,6 +44,7 @@ ui_config {
 acl = {
   enabled = true
   default_policy = "deny"
+  down_policy = "extend-cache"
   enable_token_persistence = true
   tokens = {
     master = "${BOOTSTRAP_TOKEN}"
@@ -49,7 +54,7 @@ acl = {
 
 server = true
 
-bind_addr = "0.0.0.0"
+bind_addr = "$local_ip"
 
 advertise_addr = "$local_ip"
 
@@ -78,6 +83,7 @@ ports {
 
 connect {
   enabled = true
+  enable_mesh_gateway_wan_federation = true
 }
 
 # these are the default settings used for the proxies
@@ -90,6 +96,9 @@ config_entries {
       config {
         protocol                   = "http"
         envoy_prometheus_bind_addr = "0.0.0.0:9102"
+      }
+      mesh_gateway = {
+        mode = "local"
       }
     },
     {
