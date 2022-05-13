@@ -72,16 +72,7 @@ To set use this repo, take the following steps:
 	bash scripts/post-apply.sh
 	```
 
-9. SSH into `bastion` and then into your `getting-into-consul-mesh-gateway` node...
-	1. Add the `mesh_gateway_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	2. Add the `mesh_gateway_service_token` from `tokens.txt` to the `/etc/consul.d/tokens/gateway`.
-	3. Restart both `consul` and `consul-envoy` service:
-       ```sh
-       sudo systemctl daemon-reload
-       sudo systemctl restart consul consul-envoy
-       ```
-
-10. SSH into `bastion` and then into your `getting-into-consul-api` nodes...
+9. SSH into `bastion` and then into your `getting-into-consul-api` nodes...
 	1. Add the `client_api_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
 	2. Add the `client_api_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
 	3. Add the `client_api_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
@@ -92,7 +83,7 @@ To set use this repo, take the following steps:
        ```
 	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
 
-11. SSH into `bastion` and then into your `getting-into-consul-web` nodes...
+10. SSH into `bastion` and then into your `getting-into-consul-web` nodes...
 	1. Add the `client_web_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
 	2. Add the `client_web_service_token` from `tokens.txt` to the `/etc/consul.d/web.hcl` file in the service.token block.
 	3. Add the `client_web_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
@@ -103,7 +94,7 @@ To set use this repo, take the following steps:
 		```
 	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
 
-12. Create an ACL replication token. You need to allow ACL replication in connected secondary datacenters.
+11. Create an ACL replication token. You need to allow ACL replication in connected secondary datacenters.
 	```sh
 	# this will output two things:
 
@@ -115,89 +106,16 @@ To set use this repo, take the following steps:
 	bash scripts/post-apply-acl.sh
 	```
 
-13. SSH into `bastion-dc2` and then into your `getting-into-consul-server-dc2` node...
-    1. Add the `acl_replication_token` from `tokens-acl.txt` to the `/etc/consul.d/consul.hcl` file.
-	1. Restart `consul` service.
-	   ```sh
-	   sudo systemctl restart consul
-	   ```
-
-14. Run the post apply script for `dc2`:
-
-	```sh
-	# this will output two things:
-
-	# 1. Sensitive values needed in a local file 'tokens-dc2.txt'
-
-	# 2. Values required by the metrics_module
-
-	# 3. Detailed setup instructions which are also listed below
-	bash scripts/post-apply-dc2.sh
-	```
-
-15. SSH into `bastion-dc2` and then into your `getting-into-consul-mesh-gateway-dc2` node...
-	1. Add the `mesh_gateway_node_id_token` from `tokens-dc2.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	2. Add the `mesh_gateway_service_token` from `tokens.txt` to the `/etc/consul.d/tokens/gateway`.
-	3. Restart both `consul` and `consul-envoy` service:
-       ```sh
-       sudo systemctl daemon-reload
-       sudo systemctl restart consul consul-envoy
-       ```
-
-16. After a few minutes, the two datacenters will have federated. You should be able to go into either Consul server in each datacenter...
-    1. Check that the clusters have federated.
-       ```sh
-       $ export CONSUL_HTTP_TOKEN=<bootstrap token>
-
-       $ consul members -wan
-
-       Node                 Address            Status  Type    Build   Protocol  DC   Partition  Segment
-       ip-10-254-2-250.dc2  10.254.2.250:8302  alive   server  1.11.3  2         dc2  default    <all>
-       ip-10-255-2-250.dc1  10.255.2.250:8302  alive   server  1.11.3  2         dc1  default    <all>
-       ```
-	1. Check that in each datacenter can read the other's services.
-	   ```sh
-	   ## From dc1
-	   $ curl -H "X-Consul-Token:${CONSUL_HTTP_TOKEN}" localhost:8500/v1/catalog/services?dc=dc2
-
-	   ## From dc2
-	   $ curl -H "X-Consul-Token:${CONSUL_HTTP_TOKEN}" localhost:8500/v1/catalog/services?dc=dc1
-	   ```
-
-17. SSH into `bastion-dc2` and then into your `getting-into-consul-api-2` nodes...
-	1. Add the `client_api_dc2_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
-	2. Add the `client_api_dc2_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
-	3. Add the `client_api_dc2_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
-	4. Restart both `consul`, `api`, and `consul-envoy` service:
-       ```sh
-       sudo systemctl daemon-reload
-       sudo systemctl restart consul api consul-envoy
-       ```
-	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
-
-18. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
+12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
-19. To verify everything is working, check out your Consul UI...
+13. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-20. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
 	- It should show the upstream `body` of the `api` server with an IP address in `dc1`.
 
-21. Run the post apply script to create a `service-resolver` that diverts all traffic from
-    `web` to `api` in `dc2`.
-
-	```sh
-	# this will output two things:
-
-	# 1. Sensitive values needed in a local file 'tokens-dc2.txt'
-
-	# 2. Values required by the metrics_module
-
-	# 3. Detailed setup instructions which are also listed below
-	bash scripts/post-apply-resolver.sh
-	```
 
 ### Setting Things Up Manually
 

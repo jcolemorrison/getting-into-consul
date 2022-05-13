@@ -83,7 +83,6 @@ ports {
 
 connect {
   enabled = true
-  enable_mesh_gateway_wan_federation = true
 }
 
 # these are the default settings used for the proxies
@@ -96,9 +95,6 @@ config_entries {
       config {
         protocol                   = "http"
         envoy_prometheus_bind_addr = "0.0.0.0:9102"
-      }
-      mesh_gateway = {
-        mode = "local"
       }
     },
     {

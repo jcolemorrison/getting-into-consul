@@ -3,11 +3,6 @@ output "consul_server" {
   description = "DNS name of AWS ALB for Consul server"
 }
 
-output "consul_server_dc2" {
-  value       = aws_lb.alb_dc2.dns_name
-  description = "DNS name of AWS ALB in DC2 for Consul server"
-}
-
 output "web_server" {
   value       = aws_lb.alb_web.dns_name
   description = "DNS name of AWS ALB for the fake web service"
@@ -16,11 +11,6 @@ output "web_server" {
 output "bastion_ip" {
   value       = aws_instance.bastion.public_ip
   description = "Public IP address of bastion"
-}
-
-output "bastion_ip_dc2" {
-  value       = aws_instance.bastion_dc2.public_ip
-  description = "Public IP address of the dc2 bastion"
 }
 
 output "consul_token" {
@@ -32,11 +22,6 @@ output "consul_token" {
 output "asg_api_name" {
   value       = aws_autoscaling_group.consul_client_api.name
   description = "Name of the API AutoScaling Group"
-}
-
-output "asg_api_dc2_name" {
-  value       = aws_autoscaling_group.consul_client_api_dc2.name
-  description = "Name of the API AutoScaling Group in dc2"
 }
 
 output "asg_web_name" {
@@ -91,13 +76,4 @@ output "consul_client_security_group_id" {
 
 output "allowed_traffic_cidr_blocks_ipv6" {
   value = var.allowed_traffic_cidr_blocks_ipv6
-}
-
-# apparently this attribute is retreivable despite NOT being in the docs...
-output "mesh_gateway_private_ip" {
-  value = aws_instance.mesh_gateway.private_ip
-}
-
-output "mesh_gateway_private_ip_dc2" {
-  value = aws_instance.mesh_gateway_dc2.private_ip
 }

@@ -18,19 +18,7 @@ variable "vpc_cidr" {
   default     = "10.255.0.0/20"
 }
 
-variable "vpc_cidr_dc2" {
-  description = "Cidr block for the VPC in DC2.  Using a /16 or /20 Subnet Mask is recommended."
-  type        = string
-  default     = "10.254.0.0/20"
-}
-
 variable "vpc_instance_tenancy" {
-  description = "Tenancy for instances launched into the VPC."
-  type        = string
-  default     = "default"
-}
-
-variable "vpc_instance_tenancy_dc2" {
   description = "Tenancy for instances launched into the VPC."
   type        = string
   default     = "default"
@@ -42,62 +30,13 @@ variable "vpc_tags" {
   default     = {}
 }
 
-variable "vpc_tags_dc2" {
-  description = "Additional tags to add to the VPC in DC2 and its resources."
-  type        = map(string)
-  default     = {}
-}
-
 variable "vpc_public_subnet_count" {
   description = "The number of public subnets to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
   type        = number
   default     = 2
 }
 
-variable "vpc_public_subnet_count_dc2" {
-  description = "The number of public subnets in dc2 to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
-  type        = number
-  default     = 2
-}
-
 variable "vpc_private_subnet_count" {
-  description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
-  type        = number
-  default     = 2
-}
-
-variable "vpc_private_subnet_count_dc2" {
-  description = "The number of private subnets to create in dc2.  Cannot exceed the number of AZs in your selected region."
-  type        = number
-  default     = 2
-}
-
-# VPC DC2 Variables
-variable "vpc_dc2_cidr" {
-  description = "Cidr block for the DC2 VPC.  Using a /16 or /20 Subnet Mask is recommended."
-  type        = string
-  default     = "10.254.0.0/20"
-}
-
-variable "vpc_dc2_instance_tenancy" {
-  description = "Tenancy for instances launched into the DC2 VPC."
-  type        = string
-  default     = "default"
-}
-
-variable "vpc_dc2_tags" {
-  description = "Additional tags to add to the DC2 VPC and its resources."
-  type        = map(string)
-  default     = {}
-}
-
-variable "vpc_dc2_public_subnet_count" {
-  description = "The number of public subnets to create.  Cannot exceed the number of AZs in your selected region.  2 is more than enough."
-  type        = number
-  default     = 2
-}
-
-variable "vpc_dc2_private_subnet_count" {
   description = "The number of private subnets to create.  Cannot exceed the number of AZs in your selected region."
   type        = number
   default     = 2
@@ -140,24 +79,6 @@ variable "server_max_count" {
   default     = 1
 }
 
-variable "server_desired_count_dc2" {
-  description = "The desired number of consul servers in DC2.  For Raft elections, should be an odd number."
-  type        = number
-  default     = 1
-}
-
-variable "server_min_count_dc2" {
-  description = "The minimum number of consul servers in DC2."
-  type        = number
-  default     = 1
-}
-
-variable "server_max_count_dc2" {
-  description = "The maximum number of consul servers in DC2."
-  type        = number
-  default     = 1
-}
-
 ## Consul Web Clients
 variable "client_web_desired_count" {
   description = "The desired number of consul web clients."
@@ -192,25 +113,6 @@ variable "client_api_min_count" {
 
 variable "client_api_max_count" {
   description = "The maximum number of consul api clients."
-  type        = number
-  default     = 1
-}
-
-## Consul API dc2 Clients
-variable "client_api_desired_count_dc2" {
-  description = "The desired number of consul api dc2 clients."
-  type        = number
-  default     = 1
-}
-
-variable "client_api_min_count_dc2" {
-  description = "The minimum number of consul api dc2 clients."
-  type        = number
-  default     = 1
-}
-
-variable "client_api_max_count_dc2" {
-  description = "The maximum number of consul api dc2 clients."
   type        = number
   default     = 1
 }
