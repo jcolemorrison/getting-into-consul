@@ -137,6 +137,7 @@ Although this repo is set up so that you can get everything working via `terrafo
 8. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
 	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-9-manual) to follow these.
 9. [From Part 9 to Part 10 Manual Steps](part-10-manual-steps.md)
+10. [From Part 11 to Part 12 Manual Steps](part-12-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
@@ -145,6 +146,14 @@ For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Par
 #### `502 Bad Gateway Error` when visiting the Consul Server UI
 
 The most likely cause of this is a failure to fetch and install consul on the servers due to a failure to get the required GPG key.  The most straightforward way to fix this is to `terraform destroy` the infrastructure and reapply it via `terraform apply`.
+
+#### `web` service fails to reach the `api` service
+
+If everything deployed fine and you can see the Consul UI and the `web` service is reachable but is saying that the `api` can't be reached, it's likely Consul Intentions.  To fix:
+
+1. Login with your consul bootstrap token.
+2. Click the **Web** service and then click on the **Topology** tab.
+3. Click on the red arrow between the **web** and the **api** boxes and click **Create** to create a new intention that allows the `web` to access the `api` service.
 
 ## Notes
 
