@@ -18,3 +18,5 @@ metrics_module/terraform.tfstate.backup
 metrics_module/.terraform.lock.hcl
 files/
 consul_token.txt
+hcp_client_id.txt
+hcp_client_secret.txt
