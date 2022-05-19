@@ -19,68 +19,39 @@ local_ip=`ip -o route get to 169.254.169.254 | sed -n 's/.*src \([0-9.]\+\).*/\1
 
 mkdir /etc/consul.d/certs
 
-cat > /etc/consul.d/certs/consul-agent-ca.pem <<- EOF
+cat > /etc/consul.d/ca.pem <<- EOF
 ${CA_PUBLIC_KEY}
 EOF
 
-cat > /etc/consul.d/certs/client-cert.pem <<- EOF
-${CLIENT_PUBLIC_KEY}
-EOF
-
-cat > /etc/consul.d/certs/client-key.pem <<- EOF
-${CLIENT_PRIVATE_KEY}
-EOF
-
 # Modify the default consul.hcl file
-cat > /etc/consul.d/consul.hcl <<- EOF
-datacenter = "dc1"
-
-primary_datacenter = "dc1"
-
+cat > /etc/consul.d/0-consul.hcl <<- EOF
 data_dir = "/opt/consul"
 
 client_addr = "0.0.0.0"
 
-server = false
-
 bind_addr = "0.0.0.0"
 
 advertise_addr = "$local_ip"
+EOF
 
-retry_join = ["provider=aws tag_key=\"${PROJECT_TAG}\" tag_value=\"${PROJECT_VALUE}\""]
+cat > /etc/consul.d/1-hcp-consul.json <<- EOF
+${HCP_CONFIG_FILE}
+EOF
 
-encrypt = "${GOSSIP_KEY}"
-
-verify_incoming = true
-
-verify_outgoing = true
-
-verify_server_hostname = true
-
-ca_file = "/etc/consul.d/certs/consul-agent-ca.pem"
-
-cert_file = "/etc/consul.d/certs/client-cert.pem"
-
-key_file = "/etc/consul.d/certs/client-key.pem"
-
-acl = {
-  enabled = true
-  default_policy = "deny"
-  down_policy = "extend-cache"
-  enable_token_persistence = true
-
-  tokens {
-    default = "" # put node-identity token here
-  }
-}
+# Consul loads config files on startup, in alphanumerical order, and merges them.
+# The imported config file (1-hcp-consul) has a 'ca_file' argument that's overridden
+# in this file.
+cat > /etc/consul.d/2-consul.hcl <<- EOF
+ca_file = "/etc/consul.d/ca.pem"
 
 ports {
   grpc = 8502
 }
 
-telemetry {
-  prometheus_retention_time = "24h"
-  disable_hostname = true
+acl = {
+  tokens {
+    agent = "${CONSUL_ROOT_TOKEN}" # TODO: use node-identity token here in future
+  }
 }
 EOF
 

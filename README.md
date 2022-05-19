@@ -17,7 +17,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
 - [Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)**
 - [Part 11 - Mesh Federation](https://github.com/jcolemorrison/getting-into-consul/tree/part-11)**
-- **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
+- **[Part 12 - Using HCP Consul](https://github.com/jcolemorrison/getting-into-consul/tree/part-12)**
+- [Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)
 
 ## The Architecture So Far:
 
@@ -58,9 +59,24 @@ To set use this repo, take the following steps:
 	ec2_key_pair_name = "your_aws_ec2_key"
 	```
 
-7. Run `terraform apply`!
+7. Sign up for a [HashiCorp Cloud Platform (HCP) Account](https://cloud.hashicorp.com/)
 
-8. After the apply is complete, run the post apply script:
+8. Create an [Organization](https://cloud.hashicorp.com/docs/hcp/admin/access-control/orgs) in your HCP Account.
+
+9. Create a [Service Principal](https://cloud.hashicorp.com/docs/hcp/admin/access-control/service-principals) in your HCP account.
+	- Set it's **Role** to `contributor`
+	- After creation, copy the `Client ID` and `Client Secret`
+
+10. In your shell, where you're running `terraform apply`, set two environment variables for both the HCP `Client ID` and the HCP `Client Secret`:
+
+	```sh
+	export HCP_CLIENT_ID="your hcp client id"
+	export HCP_CLIENT_SECRET="your hcp client secret"
+	```
+
+11. Run `terraform apply`!
+
+12. After the apply is complete, run the post apply script:
 	```sh
 	# this will output two things:
 
@@ -72,8 +88,8 @@ To set use this repo, take the following steps:
 	bash scripts/post-apply.sh
 	```
 
-9. SSH into `bastion` and then into your `getting-into-consul-api` nodes...
-	1. Add the `client_api_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
+13. SSH into `bastion` and then into your `getting-into-consul-api` nodes...
+	1. Add the `client_api_node_id_token` from `tokens.txt` to the `/etc/consul.d/2-consul.hcl` file in the acl.tokens block.
 	2. Add the `client_api_service_token` from `tokens.txt` to the `/etc/consul.d/api.hcl` file in the service.token block.
 	3. Add the `client_api_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
 	4. Restart both `consul`, `api`, and `consul-envoy` service:
@@ -83,8 +99,8 @@ To set use this repo, take the following steps:
        ```
 	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
 
-10. SSH into `bastion` and then into your `getting-into-consul-web` nodes...
-	1. Add the `client_web_node_id_token` from `tokens.txt` to the `/etc/consul.d/consul.hcl` file in the acl.tokens block.
+14. SSH into `bastion` and then into your `getting-into-consul-web` nodes...
+	1. Add the `client_web_node_id_token` from `tokens.txt` to the `/etc/consul.d/2-consul.hcl` file in the acl.tokens block.
 	2. Add the `client_web_service_token` from `tokens.txt` to the `/etc/consul.d/web.hcl` file in the service.token block.
 	3. Add the `client_web_service_token` from `tokens.txt` to the `/etc/systemd/system/consul-envoy.service`.
 	4. Restart both `consul`, `web`, and `consul-envoy` service:
@@ -94,26 +110,16 @@ To set use this repo, take the following steps:
 		```
 	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
 
-11. Create an ACL replication token. You need to allow ACL replication in connected secondary datacenters.
-	```sh
-	# this will output two things:
+15. Head to the Consul UI via your `consul_public_endpoint_url` output from Terraform (the `application load balancer` DNS for the server).
+	1. Login with your root token (the `consul_root_token_secret_id` output, you can find it in your state file)
+	2. Click the **Web** service and then click on the **Topology** tab.
+	3. Click on the red arrow between the **web** and the **api** boxes and click **Create** to create a new intention that allows the `web` to access the `api` service.
 
-	# 1. Sensitive values needed in a local file 'tokens-acl.txt'
-
-	# 2. Values required by the metrics_module
-
-	# 3. Detailed setup instructions which are also listed below
-	bash scripts/post-apply-acl.sh
-	```
-
-12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
-	1. Login with your root token (the `consul_token` output, you can find it in your state file)
-
-13. To verify everything is working, check out your Consul UI...
+16. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+17. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
 	- It should show the upstream `body` of the `api` server with an IP address in `dc1`.
 
 

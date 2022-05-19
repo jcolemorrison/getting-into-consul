@@ -4,8 +4,8 @@
 # 3. jq
 # 4. AWS CLI with credentials set up
 
-export CONSUL_HTTP_ADDR=http://$(terraform output -raw consul_server)
-export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_token)
+export CONSUL_HTTP_ADDR=$(terraform output -raw consul_public_endpoint_url)
+export CONSUL_HTTP_TOKEN=$(terraform output -raw consul_root_token_secret_id)
 export API_ASG_NAME=$(terraform output -raw asg_api_name)
 export WEB_ASG_NAME=$(terraform output -raw asg_web_name)
 export AWS_REGION=$(terraform output -raw aws_region)
@@ -46,7 +46,7 @@ done
 
 # Service Tokens
 echo "client_api_service_token = \"$(consul acl token create -service-identity="api:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-echo "client_web_service_token = \"$(consul acl token create -service-identity="web" -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "client_web_service_token = \"$(consul acl token create -service-identity="web:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # User Setup Messages
 echo ""
@@ -55,7 +55,7 @@ echo "To complete setup reference the tokens in tokens.txt.  The tokens are the 
 echo ""
 echo "Part 1 - API Instances..."
 echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-api server at ${API_INSTANCES}."
-echo "2. Add the 'consul_api_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "2. Add the 'consul_api_node_id_token_0' to the '/etc/consul.d/2-consul.hcl' file under the acl.tokens block."
 echo "3. Add the 'consul_api_service_token' to the '/etc/consul.d/api.hcl' file under the service.token block."
 echo "4. Add the 'consul_api_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
 echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart api'; 'systemctl restart consul-envoy';"
@@ -63,7 +63,7 @@ echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'sy
 echo ""
 echo "Part 2 - Web Instances..."
 echo "1. SSH into your Bastion at ${BASTION_IP}.  From there SSH into your getting-into-consul-web server at ${WEB_INSTANCES}."
-echo "2. Add the 'client_web_node_id_token_0' to the '/etc/consul.d/consul.hcl' file under the acl.tokens block."
+echo "2. Add the 'client_web_node_id_token_0' to the '/etc/consul.d/2-consul.hcl' file under the acl.tokens block."
 echo "3. Add the 'consul_web_service_token' to the '/etc/consul.d/web.hcl' file under the service.token block."
 echo "4. Add the 'consul_web_service_token' to the '/etc/systemd/system/consul-envoy.service' file for the '-token=' flag."
 echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart web'; 'systemctl restart consul-envoy';"

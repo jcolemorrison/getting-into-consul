@@ -4,5 +4,5 @@ locals {
   server_private_ips  = [for i in local.private_cidr_blocks : cidrhost(i, 250)]
   # TODO - assumes we'll never want more than one consul server per availability zone...
   # Which means we could just tie the server count to the AZs or vice versa.
-  server_private_hostnames     = [for i in local.server_private_ips : join("-", ["ip", replace(i, ".", "-")])]
+  server_private_hostnames = [for i in local.server_private_ips : join("-", ["ip", replace(i, ".", "-")])]
 }

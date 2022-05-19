@@ -4,12 +4,18 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.62.0"
     }
+    hcp = {
+      source  = "hashicorp/hcp"
+      version = "0.28.0"
+    }
   }
 }
 
 provider "aws" {
   region = var.aws_default_region
 }
+
+provider "hcp" {}
 
 # for creating Consul Gossip encryption key
 provider "random" {}

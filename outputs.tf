@@ -77,3 +77,12 @@ output "consul_client_security_group_id" {
 output "allowed_traffic_cidr_blocks_ipv6" {
   value = var.allowed_traffic_cidr_blocks_ipv6
 }
+
+output "consul_public_endpoint_url" {
+  value = hcp_consul_cluster.consul.consul_public_endpoint_url
+}
+
+output "consul_root_token_secret_id" {
+  sensitive = true
+  value     = hcp_consul_cluster.consul.consul_root_token_secret_id
+}

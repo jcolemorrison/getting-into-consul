@@ -11,6 +11,18 @@ variable "aws_default_region" {
   default     = "us-east-1"
 }
 
+variable "hcp_default_region" {
+  description = "The default region that all HCP resources will be deployed into."
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "hcp_vpc_cidr" {
+  description = "HCP Cidr block for the VPC.  Using a /16 or /20 Subnet Mask is recommended."
+  type        = string
+  default     = "172.25.16.0/20"
+}
+
 # VPC Variables
 variable "vpc_cidr" {
   description = "Cidr block for the VPC.  Using a /16 or /20 Subnet Mask is recommended."

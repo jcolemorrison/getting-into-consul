@@ -16,6 +16,7 @@ resource "aws_instance" "bastion" {
   )
 }
 
+# HCP is being used instead of this consul server
 resource "aws_instance" "consul_server" {
   count = var.server_desired_count
 
