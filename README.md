@@ -15,11 +15,13 @@ This repo is split into branches, each representing a part in the series:
 - [Part 7 - Enabling Consul Service Mesh](https://github.com/jcolemorrison/getting-into-consul/tree/part-7)
 - [Part 8 - Traffic Shaping and Envoy Debugging](https://github.com/jcolemorrison/getting-into-consul/tree/part-8)
 - [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
-- [Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)**
-- [Part 11 - Mesh Federation](https://github.com/jcolemorrison/getting-into-consul/tree/part-11)**
+- [Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)
+- [Part 11 - Mesh Federation](https://github.com/jcolemorrison/getting-into-consul/tree/part-11)
 - [Part 12 - Using HCP Consul](https://github.com/jcolemorrison/getting-into-consul/tree/part-12)
 	- uses [HashiCorp Cloud Platform (HCP) Consul](https://cloud.hashicorp.com/products/consul) instead of deploying Consul via Terraform 
 - **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
+
+Note: for Parts 5 and beyond, the corresponding branch will include different resources, setup instructions, and scripts.  This is because we build out a foundation with Consul in the earlier parts, but after that, it's been exploration of different aspects of Consul which are not necessarily dependent upon each other.  The current master branch is the foundation state where only consul and two services are launched.
 
 ## The Architecture So Far:
 
