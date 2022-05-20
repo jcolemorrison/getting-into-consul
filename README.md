@@ -17,6 +17,8 @@ This repo is split into branches, each representing a part in the series:
 - [Part 9 - Metrics with Prometheus](https://github.com/jcolemorrison/getting-into-consul/tree/part-9)
 - [Part 10 - Terminating and Ingress Gateways](https://github.com/jcolemorrison/getting-into-consul/tree/part-10)**
 - [Part 11 - Mesh Federation](https://github.com/jcolemorrison/getting-into-consul/tree/part-11)**
+- [Part 12 - Using HCP Consul](https://github.com/jcolemorrison/getting-into-consul/tree/part-12)
+	- uses [HashiCorp Cloud Platform (HCP) Consul](https://cloud.hashicorp.com/products/consul) instead of deploying Consul via Terraform 
 - **[Master - The most up-to-date version of the repo](https://github.com/jcolemorrison/getting-into-consul)**
 
 ## The Architecture So Far:
@@ -94,28 +96,48 @@ To set use this repo, take the following steps:
 		```
 	> NOTE: Sometimes `consul-envoy` will fail to start if `consul` isn't given enough time to start up.  Simply restart `consul-envoy` again if this is the case.
 
-11. Create an ACL replication token. You need to allow ACL replication in connected secondary datacenters.
-	```sh
-	# this will output two things:
-
-	# 1. Sensitive values needed in a local file 'tokens-acl.txt'
-
-	# 2. Values required by the metrics_module
-
-	# 3. Detailed setup instructions which are also listed below
-	bash scripts/post-apply-acl.sh
-	```
-
-12. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
+11. Head to the Consul UI via your `consul_server` output from Terraform (the `application load balancer` DNS for the server).
 	1. Login with your root token (the `consul_token` output, you can find it in your state file)
 
-13. To verify everything is working, check out your Consul UI...
+12. To verify everything is working, check out your Consul UI...
 	- All services in the **Services** tab should be green.
 	- All nodes in the **Nodes** tab should be green.
 
-14. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
+13. To verify the web service is up and running, head to the DNS printed in the terraform output as `web_server`
 	- It should show the upstream `body` of the `api` server with an IP address in `dc1`.
 
+### Deploy the Optional Metrics Server
+
+There's also another module nested in this repository that will stand up a [prometheus](https://prometheus.io/) deployment to monitor your Consul cluster.  To deploy it.
+
+1. Ensure that the above "Getting Started" instructions have been followed. 
+	- including running the `post-apply.sh` script that creates needed variables for the metrics deployment.
+
+2. Run the `post-apply-metrics.sh` script:
+
+	```
+	bash scripts/post-apply-metrics.sh
+	```
+
+3. Navigate to the nested `metrics_module`.
+
+	```
+	cd metrics_module/
+	```
+
+4. Initialize the nested Terraform Module:
+
+	```
+	terraform init
+	```
+
+5. Deploy it:
+
+	```
+	terraform apply
+	```
+
+6. Afterwards, it'll output `metrics_endpoint` which is the endpoint you can visit to view your metrics.
 
 ### Setting Things Up Manually
 
@@ -131,6 +153,7 @@ Although this repo is set up so that you can get everything working via `terrafo
 8. [From Part 8 to Part 9 Manual Steps](part-9-manual-steps.md)
 	- Checkout the [part-9-manual branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-9-manual) to follow these.
 9. [From Part 9 to Part 10 Manual Steps](part-10-manual-steps.md)
+10. [From Part 11 to Part 12 Manual Steps](part-12-manual-steps.md)
 
 For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Part 1 Branch](https://github.com/jcolemorrison/getting-into-consul/tree/part-1), and follow the "[From Part 1 to Part 2 Manual Steps](part-2-manual-steps.md)".
 
@@ -139,6 +162,14 @@ For example, if you wanted to manually learn Part 1 to Part 2, begin on the [Par
 #### `502 Bad Gateway Error` when visiting the Consul Server UI
 
 The most likely cause of this is a failure to fetch and install consul on the servers due to a failure to get the required GPG key.  The most straightforward way to fix this is to `terraform destroy` the infrastructure and reapply it via `terraform apply`.
+
+#### `web` service fails to reach the `api` service
+
+If everything deployed fine and you can see the Consul UI and the `web` service is reachable but is saying that the `api` can't be reached, it's likely Consul Intentions.  To fix:
+
+1. Login with your consul bootstrap token.
+2. Click the **Web** service and then click on the **Topology** tab.
+3. Click on the red arrow between the **web** and the **api** boxes and click **Create** to create a new intention that allows the `web` to access the `api` service.
 
 ## Notes
 

@@ -69,6 +69,11 @@ echo "4. Add the 'consul_web_service_token' to the '/etc/systemd/system/consul-e
 echo "5. Run 'systemctl daemon-reload' and then 'systemctl restart consul';  'systemctl restart web'; 'systemctl restart consul-envoy';"
 
 echo ""
+echo "(Optional) Part 3 - Deploying the Prometheus Metrics Server..."
+echo "1. Run the post-apply-metrics.sh script."
+echo "2. Follow instructions from aforementioned script."
+
+echo ""
 echo "Visit your Consul Server at ${CONSUL_HTTP_ADDR}."
 echo "Visit your Web Server at ${WEB_HTTP_ADDR}."
 
