@@ -82,3 +82,8 @@ output "consul_client_security_group_id" {
 output "allowed_traffic_cidr_blocks_ipv6" {
   value = var.allowed_traffic_cidr_blocks_ipv6
 }
+
+output "cts_instance_private_ip" {
+  value = aws_instance.consul_client_cts.private_ip
+  description = "Private IP of the CTS Client"
+}
