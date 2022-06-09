@@ -48,8 +48,10 @@ resource "aws_iam_instance_profile" "consul_instance_profile" {
 resource "aws_iam_role" "consul_cts_instance" {
   name_prefix        = "${var.main_project_tag}-cts-role-"
   assume_role_policy = data.aws_iam_policy_document.instance_trust_policy.json
-  # includes the needed "ec2:DescribeInstances" permissions
-  managed_policy_arns = ["arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"]
+  # TODO: limit permissions to just what's needed for CTS
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+  ]
 }
 
 resource "aws_iam_instance_profile" "consul_cts_instance_profile" {

@@ -57,8 +57,6 @@ resource "aws_instance" "consul_client_cts" {
 
   iam_instance_profile = aws_iam_instance_profile.consul_cts_instance_profile.name
 
-  private_ip = local.server_private_ips[count.index]
-
   user_data = base64encode(templatefile("${path.module}/scripts/client-cts.sh", {
     PROJECT_TAG        = "Project"
     PROJECT_VALUE      = var.main_project_tag
