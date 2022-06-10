@@ -108,15 +108,15 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-# Reload unit files and start the API
+# Reload unit files and start the WEB
 systemctl daemon-reload
 
-# Consul Config file for our fake API service
+# Consul Config file for our fake WEB service
 cat > /etc/consul.d/web.hcl <<- EOF
 service {
   name = "web"
   port = 9090
-  token = "" # put api service token here
+  token = "" # put web service token here
 
   check {
     id = "web"

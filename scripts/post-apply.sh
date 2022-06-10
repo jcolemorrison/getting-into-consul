@@ -70,7 +70,7 @@ export CTS_INSTANCE_PRIVATE_IP=$(terraform output -raw cts_instance_private_ip)
 CTS_INSTANCE_HOSTNAME="ip-${CTS_INSTANCE_PRIVATE_IP//./-}"
 
 echo "cts_instance_node_id_token = \"$(consul acl token create -node-identity="$CTS_INSTANCE_HOSTNAME:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
-echo "cts_instance_service_token = \"$(consul acl token create -description "cts:dc1" -policy-name=meshgateway -format=json | jq -r .SecretID)\"" >> tokens.txt
+echo "cts_instance_service_token = \"$(consul acl token create -service-identity="cts:dc1" -format=json | jq -r .SecretID)\"" >> tokens.txt
 
 # User Setup Messages
 echo ""
