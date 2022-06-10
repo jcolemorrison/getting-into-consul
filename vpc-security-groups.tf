@@ -288,6 +288,16 @@ resource "aws_security_group_rule" "consul_client_allow_consul_server_8301_udp" 
   description              = "Allow gossip traffic from Consul Servers to Consul Clients."
 }
 
+# resource "aws_security_group_rule" "consul_client_allow_consul_server_8558_tcp" {
+#   security_group_id        = aws_security_group.consul_client.id
+#   type                     = "ingress"
+#   protocol                 = "tcp"
+#   from_port                = 8558
+#   to_port                  = 8558
+#   source_security_group_id = aws_security_group.consul_server.id
+#   description              = "Allow gossip traffic from Consul Servers to Consul Clients for CTS."
+# }
+
 resource "aws_security_group_rule" "consul_client_allow_20000" {
   security_group_id        = aws_security_group.consul_client.id
   type                     = "ingress"

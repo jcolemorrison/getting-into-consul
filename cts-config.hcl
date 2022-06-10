@@ -11,24 +11,23 @@ buffer_period {
 }
 
 consul {
-  address = "https://consul-server:8501"
-  tls {
-    enabled = true
-    verify  = false
-  }
+  address = "localhost:8500"
+
   service_registration {
     enabled      = true
-    service_name = "Consul-Terraform-Sync"
-    default_check {
-      enabled = true
-      address = "http://consul-terraform-sync:8558"
-    }
+    service_name = "cts"
+    # address = "10.255.2.221"
+
+    # default_check {
+    #   enabled = true
+    #   address = "http://10.255.2.221:8558"
+    # }
   }
 }
 
 driver "terraform" {
-  log         = false
-  persist_log = true
+  log         = true
+  persist_log = false
   backend "local" {}
 }
 

@@ -87,7 +87,7 @@ resource "aws_lb_listener_rule" "app" {
 
   condition {
     path_pattern {
-      values = ["/${var.application_name}/*"]
+      values = ["/${local.application_name}/*"]
     }
   }
 }
