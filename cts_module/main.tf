@@ -75,7 +75,6 @@ resource "aws_lb_target_group_attachment" "app" {
   target_group_arn  = aws_lb_target_group.app.arn
   target_id         = each.value
   port              = local.application_port
-  availability_zone = "all"
 }
 
 resource "aws_lb_listener_rule" "app" {
