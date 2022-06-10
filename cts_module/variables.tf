@@ -72,8 +72,8 @@ variable "load_balancer_allow_cidr_blocks" {
 }
 
 locals {
-  application_port              = 9090
-  application_health_check_path = ""
-  application_name              = "example"
-  ip_addresses                  = toset([])
+  application_port              = values(var.services).0.port
+  application_health_check_path = "/health"
+  application_name              = values(var.services).0.name
+  ip_addresses                  = toset(values(var.services).*.address)
 }
