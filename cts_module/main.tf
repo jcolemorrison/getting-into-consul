@@ -15,6 +15,8 @@ resource "aws_security_group" "alb" {
     cidr_blocks = var.load_balancer_allow_cidr_blocks
   }
 
+  vpc_id = var.vpc_id
+
   tags = var.tags
 }
 
