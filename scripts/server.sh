@@ -72,7 +72,7 @@ key_file = "/etc/consul.d/certs/server-key.pem"
 
 # Below is what's required for service mesh
 ports {
-  grpc = 8502
+  grpc_tls = 8503
 }
 
 connect {
