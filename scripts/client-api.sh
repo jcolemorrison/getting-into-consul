@@ -70,7 +70,7 @@ acl = {
 }
 
 ports {
-  grpc = 8502
+  grpc_tls = 8503
 }
 EOF
 
